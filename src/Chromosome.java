@@ -2,7 +2,7 @@ public class Chromosome {
     public Chromosome() {
         
     }
-    public static int calculateFitness() {
+    public static void calculateFitness() {
 
     }
 }
