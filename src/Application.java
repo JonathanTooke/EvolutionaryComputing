@@ -12,17 +12,15 @@ public class Application {
     }
 
     /**
-     * This method will run a Genetic Algorithm (GA) Simulation for the knapsack problem.
+     * Run a Genetic Algorithm (GA) Simulation for the knapsack problem.
      * @param fileName - Name of file to be accessed for config.
      * @return Nothing.
      */ 
     private void runGAConfiguration(String fileName) {
         long runtimeStart = System.currentTimeMillis();
-        GAConfiguration config = new GAConfiguration();
-        fileName = config.getGAPath() + fileName;
+        GAConfiguration config = new GAConfiguration(fileName);
         Knapsack knapsack = new Knapsack(config.getKnapsackPath());
-        Population population = new Population(knapsack);
-        
+        Population population = new Population(knapsack);        
     }
 }
 

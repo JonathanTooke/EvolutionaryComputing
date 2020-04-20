@@ -43,6 +43,7 @@ public class KnapsackItem {
      * toString method
      * @return - string representation of the KnapsackItem
      */
+    @Override
     public String toString() {
         return "Number: " + this.number + ", " + "Weight: " + this.weight + ", " + "Value: " + this.value;
     }
