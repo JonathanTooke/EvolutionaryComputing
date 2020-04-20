@@ -19,8 +19,7 @@ public class Application {
     private void runGAConfiguration(String fileName) {
         long runtimeStart = System.currentTimeMillis();
         GAConfiguration config = new GAConfiguration(fileName);
-        Knapsack knapsack = new Knapsack(config.getKnapsackPath());
-        Population population = new Population(knapsack);        
+        Population pop = new Population(config);
     }
 }
 

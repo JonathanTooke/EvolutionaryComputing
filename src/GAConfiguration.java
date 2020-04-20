@@ -7,6 +7,7 @@ import java.io.IOException;
 
 public class GAConfiguration extends Configuration {
     
+    public static final int POPULATION_SIZE = 2048;
     private String selectionMethod;
     private String configuration;
     private double mutationRatio;
@@ -27,7 +28,8 @@ public class GAConfiguration extends Configuration {
      * Parse the JSON file and load the necessary config data
      * @param fileName - containing config data
      */
-    private void loadConfig (String fileName){
+    @Override
+    protected void loadConfig (String fileName){
         fileName = "data/configuration/ga/" + fileName;
         File file = new File(fileName);
         try {
@@ -79,17 +81,4 @@ public class GAConfiguration extends Configuration {
     public String getMutationMethod() {
         return this.mutationMethod;
     }
-
-    @Override
-    public String toString() {
-        return "{" +
-            " selectionMethod='" + getSelectionMethod() + "'" +
-            ", configuration='" + getConfiguration() + "'" +
-            ", mutationRatio='" + getMutationRatio() + "'" +
-            ", crossoverRatio='" + getCrossoverRatio() + "'" +
-            ", crossoverMethod='" + getCrossoverMethod() + "'" +
-            ", mutationMethod='" + getMutationMethod() + "'" +
-            "}";
-    }
-
 }
