@@ -1,13 +1,10 @@
 public class Application {
-    public static void main(String... args) {
-        double currentBestFitness = Double.MAX_VALUE;
-        Application application = new Application();
-                
+    public static void main(String... args) {                
         if (args.length != 2){
             throw new IllegalArgumentException("Expected 2 arguments, but received" + args.length);
         } 
         else if (args[0].equals("-configuration")) {
-            application.runGAConfiguration(args[1]);
+            runGAConfiguration(args[1]);
         }
     }
 
@@ -16,11 +13,17 @@ public class Application {
      * @param fileName - Name of file to be accessed for config.
      * @return Nothing.
      */ 
-    private void runGAConfiguration(String fileName) {
-        long runtimeStart = System.currentTimeMillis();
+    private static void runGAConfiguration(String fileName) {
         GAConfiguration config = new GAConfiguration(fileName);
-        Population pop = new Population(config);
+        Population population = new Population(config);
+        Knapsack bestKnapsack = population.getBestKnapsack();
+        for(int i = 0; i < Configuration.MAX_ITERATIONS; i++){
+            population.evolve();
+            bestKnapsack = population.getBestKnapsack();
+            System.out.println(bestKnapsack.getFitness());
+        }
     }
+
 }
 
 

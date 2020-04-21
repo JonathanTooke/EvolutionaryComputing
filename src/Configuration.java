@@ -18,7 +18,7 @@ public abstract class Configuration {
      * Load the full knapsack dataset from a csv file. 
      * Data provided in format: #;weight;value
      * @param fileName - Name of file storing the knapsack data.
-     * @return KnapsackItem[] storing the list of knapsack items.
+     * @return List<KnapsackItem> storing the list of KnapsackItems.
      */
     private static List<KnapsackItem> loadKnapsackItemSelection(String fileName){
         List<KnapsackItem> items = new ArrayList<>();

@@ -8,6 +8,8 @@ import java.io.IOException;
 public class GAConfiguration extends Configuration {
     
     public static final int POPULATION_SIZE = 2048;
+    public static final int TOURNAMENT_SIZE = 100;
+    public static final int CONCEPTION_ATTEMPTS = 10;
     private String selectionMethod;
     private String configuration;
     private double mutationRatio;
