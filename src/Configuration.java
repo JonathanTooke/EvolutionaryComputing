@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+/**
+ * General configuration applicable to all algorithms.
+ */
 public abstract class Configuration {
     public static final int MAX_CAPACITY = 822;
     public static final String KNAPSACK_PATH = "data/knapsack/knapsack_instance.csv";
@@ -42,5 +45,10 @@ public abstract class Configuration {
         return items;
     }
 
+    /**
+     * Implemented by each algorithm's config child to load 
+     * the relevent JSON config.
+     * @param fileName
+     */
     protected abstract void loadConfig(String fileName);
 }

@@ -5,11 +5,16 @@ import java.util.stream.Collectors;
 import java.io.File;
 import java.io.IOException;
 
+/**
+ * Config specific to Genetic Algorithms (GA).
+ */
 public class GAConfiguration extends Configuration {
     
-    public static final int POPULATION_SIZE = 2048;
-    public static final int TOURNAMENT_SIZE = 100;
-    public static final int CONCEPTION_ATTEMPTS = 10;
+    public static final int POPULATION_SIZE = 10000;
+    public static final int TOURNAMENT_SIZE = 3;
+    public static final int CONCEPTION_ATTEMPTS = 1;
+    public static final int MUTATION_ATTEMPTS = 1;
+    public static final double ELITISM_RATIO = 0.1;
     private String selectionMethod;
     private String configuration;
     private double mutationRatio;

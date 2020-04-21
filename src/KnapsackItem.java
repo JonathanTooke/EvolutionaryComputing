@@ -20,40 +20,19 @@ public class KnapsackItem implements Cloneable{
     }
 
     /**
-     * Getter
-     * @return number
+     * Deep copy KnapsackItem
+     * @return - KnapsackItem
      */
-    public int getNumber() {
-        return this.number;
-    }
-    /**
-     * Getter
-     * @return weight
-     */
-    public int getWeight() {
-        return this.weight;
-    }
-    /**
-     * Getter
-     * @return value
-     */
-    public int getValue() {
-        return this.value;
-    }
-    /**
-     * toString method
-     * @return - string representation of the KnapsackItem
-     */
-    @Override
-    public String toString() {
-        return "Number: " + this.number + ", " + "Weight: " + this.weight + ", " + "Value: " + this.value;
-    }
-
     @Override
     public KnapsackItem clone() {
         return new KnapsackItem(this.number, this.weight, this.value);
     }
 
+    /**
+     * Check to see whether one KnapsackItem has the same
+     * number (key) as another KnapsackItem for equality.
+     * @return - boolean
+     */
     @Override
     public boolean equals(Object other) {
         if (this == other)
@@ -68,4 +47,28 @@ public class KnapsackItem implements Cloneable{
         KnapsackItem otherItem = (KnapsackItem) other;
         return this.number == otherItem.getNumber() ? true : false;
     } 
+
+    /**
+     * Getter
+     * @return number
+     */
+    public int getNumber() {
+        return this.number;
+    }
+
+    /**
+     * Getter
+     * @return weight
+     */
+    public int getWeight() {
+        return this.weight;
+    }
+
+    /**
+     * Getter
+     * @return value
+     */
+    public int getValue() {
+        return this.value;
+    }
 } 

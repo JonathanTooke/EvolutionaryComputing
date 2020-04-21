@@ -18,22 +18,14 @@ public class Application {
         Population population = new Population(config);
         Knapsack bestKnapsack = population.getBestKnapsack();
         for(int i = 0; i < Configuration.MAX_ITERATIONS; i++){
+            bestKnapsack = population.getBestKnapsack();
+            if(i % 100 == 0){
+                System.out.println(bestKnapsack.getFitness());
+            }
             population.evolve();
             bestKnapsack = population.getBestKnapsack();
-            System.out.println(bestKnapsack.getFitness());
+
         }
     }
 
 }
-
-
-
-
-
-
-    // private void searchBestConfiguration(String algorithmType) {
-    //     int num_configs = algorithmType.equals("ga") ? 28 : 25;
-    //     for (int i = 0; i < num_configs; i++) {
-    //         runConfiguration(algorithmType + "_default_" + (i + 1) + ".json");
-    //     }
-    // }

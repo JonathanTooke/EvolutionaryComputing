@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
 /**
  * Class used to represent store a knapsack for a given selection.
  * Representation of a chromosome in GA terms. 
@@ -9,19 +10,24 @@ public class Knapsack implements Comparable<Knapsack>{
     private List<KnapsackItem> knapsackItems;
     private int fitness;
     private double rwsValue;
-
-    private static final long MEGABYTE = 1024L * 1024L;
-
-    public static long bytesToMegabytes(long bytes) {
-        return bytes / MEGABYTE;
-    }
     
+    /**
+     * Default constructor
+     */
     public Knapsack() {}
 
+    /**
+     * Constructor with KnapsackItems supplied
+     * @param knapsackItems
+     */
     public Knapsack(List<KnapsackItem> knapsackItems) {
         this.knapsackItems = knapsackItems;
     }
 
+    /**
+     * Generate a random list of Knapsack Items within the maximum capacity.
+     * @return List<KnapsackItem> - list of KnapsackItems
+     */
     public List<KnapsackItem> generateRandom(){
         int weight = 0;
         List<KnapsackItem> itemsSelected = new ArrayList<>();
@@ -40,36 +46,50 @@ public class Knapsack implements Comparable<Knapsack>{
         return itemsSelected;
     }
 
+    /** 
+     * Fitness function for determining the fitness of this knapsack.
+     * @return
+     */
+    public int calculateFitness(){
+        int weight = 0, value = 0;
+        for (var knapsackItem : knapsackItems){
+            weight += knapsackItem.getWeight();
+            value += knapsackItem.getValue();
+        }
+        if(weight > Configuration.MAX_CAPACITY){
+            return 50;
+        }
+        return value;
+    }
+
+    /**
+     * One and Two Point Crossover Operations
+     * @param other - the other Knapsack to perform the crossover with.
+     * @param crossoverType - Either 1PX or 2PX i.e. 1 or 2 point.
+     * @return
+     */
     public List<Knapsack> doCrossover(Knapsack other, String crossoverType){
 
-        // Get the Java runtime
-        Runtime runtime = Runtime.getRuntime();
-        // Run the garbage collector
-        runtime.gc();
-        // Calculate the used memory
-        long memory = runtime.totalMemory() - runtime.freeMemory();
-        System.out.println("Used memory is bytes: " + memory);
-        System.out.println("Used memory is megabytes: "
-                + bytesToMegabytes(memory));
         List<Knapsack> children = new ArrayList<>();
-
         int minLengthSack = Math.min(this.knapsackItems.size(), other.getKnapsackItems().size());
-        for (int attempt = 0; attempt < GAConfiguration.CONCEPTION_ATTEMPTS; attempt++){
 
+        //Allow for multiple crossover attempts to better the chance of a valid crossover.
+        //Note that this can be disabled by setting GAConfiguration.CONCEPTION_ATTEMPTS = 1.
+        for(int i = 0; i < GAConfiguration.CONCEPTION_ATTEMPTS; i++){
             int crossPoint1 = crossoverType.equals("1PX") ? 0 : Configuration.RANDOM_GENERATOR.nextInt(minLengthSack);
             int crossPoint2 = Configuration.RANDOM_GENERATOR.nextInt(minLengthSack) - crossPoint1;
 
-            List<KnapsackItem> c1, c2 = new ArrayList<>();
+            List<KnapsackItem> c1 = new ArrayList<>();
+            List<KnapsackItem> c2 = new ArrayList<>();
 
-            c1 = this.knapsackItems.subList(0, crossPoint1);
+            c1.addAll(this.knapsackItems.subList(0, crossPoint1));
             c1.addAll(other.getKnapsackItems().subList(crossPoint1, crossPoint2));
             c1.addAll(this.knapsackItems.subList(crossPoint2, this.knapsackItems.size()));
+            Knapsack child1 = new Knapsack(c1);
 
-            c2 = other.getKnapsackItems().subList(0, crossPoint1);
+            c2.addAll(other.getKnapsackItems().subList(0, crossPoint1));
             c2.addAll(this.knapsackItems.subList(crossPoint1, crossPoint2));
             c2.addAll(other.getKnapsackItems().subList(crossPoint2, other.getKnapsackItems().size()));
-
-            Knapsack child1 = new Knapsack(c1);
             Knapsack child2 = new Knapsack(c2);
             
             if(child1.isValid() && children.size() < 2){
@@ -82,7 +102,7 @@ public class Knapsack implements Comparable<Knapsack>{
                 break;
             }
         }
-
+        //If the crossover failed to generate a valid child, return the parents.
         if(children.size() == 0){
             children.add(other);
             children.add(this);
@@ -93,40 +113,29 @@ public class Knapsack implements Comparable<Knapsack>{
         return children;
     }
     
-    // Should maybe reject invalid mutation?
     public void bitFlipMutation(){
-        int itemToMutate = Configuration.RANDOM_GENERATOR.nextInt(Configuration.KNAPSACK_ITEM_SELECTION.size());
-        boolean found = false;
-        for(var item : this.knapsackItems){
-            if (item.getNumber() == itemToMutate){
-                this.knapsackItems.remove(item);
-                found = true;
+        for(int i = 0; i < GAConfiguration.MUTATION_ATTEMPTS; i++){
+            int itemToMutate = Configuration.RANDOM_GENERATOR.nextInt(Configuration.KNAPSACK_ITEM_SELECTION.size());
+            boolean found = false;
+            for(var item : this.knapsackItems){
+                if (item.getNumber() == itemToMutate){
+                    this.knapsackItems.remove(item);
+                    found = true;
+                    break;
+                }
+            }
+            int sumWeight = this.calculateFitness();
+            if(!found && Configuration.KNAPSACK_ITEM_SELECTION.get(itemToMutate).getWeight() + sumWeight < Configuration.MAX_CAPACITY){
+                this.knapsackItems.add(Configuration.KNAPSACK_ITEM_SELECTION.get(itemToMutate));
                 break;
             }
         }
-        if(!found){
-            this.knapsackItems.add(Configuration.KNAPSACK_ITEM_SELECTION.get(itemToMutate));
-        }
     }
 
-    /** 
-     * Fitness function for determining the fitness of this knapsack.
-     * @return
-     */
-    public int calculateFitness(){
-        int weight = 0, value = 0;
-        for (var knapsackItem : knapsackItems){
-            weight += knapsackItem.getWeight();
-            value += knapsackItem.getValue();
-        }
-        if(weight > Configuration.MAX_CAPACITY){
-            return 1;
-        }
-        return value;
-    }
+
 
     public boolean isValid(){
-        return calculateFitness() > 1;
+        return calculateFitness() > 50;
     }
 
     public List<KnapsackItem> getKnapsackItems() {
@@ -155,8 +164,12 @@ public class Knapsack implements Comparable<Knapsack>{
         return this.fitness;
     }
 
+    public void setFitness(int fitness){
+        this.fitness = fitness;
+    }
+
     @Override
     public int compareTo(Knapsack other){
-        return Integer.compare(this.fitness, other.getFitness());
+        return Integer.compare(other.getFitness(), this.fitness);
     }
 }
