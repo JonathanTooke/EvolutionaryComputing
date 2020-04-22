@@ -45,8 +45,13 @@ public class KnapsackItem implements Cloneable{
             return false;
 
         KnapsackItem otherItem = (KnapsackItem) other;
-        return this.number == otherItem.getNumber() ? true : false;
+        return this.number == otherItem.getNumber();
     } 
+
+    @Override
+    public int hashCode() {
+        return number;
+    }
 
     /**
      * Getter

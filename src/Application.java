@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 public class Application {
     public static void main(String... args) {                
         if (args.length != 2){
@@ -16,16 +19,18 @@ public class Application {
     private static void runGAConfiguration(String fileName) {
         GAConfiguration config = new GAConfiguration(fileName);
         Population population = new Population(config);
-        Knapsack bestKnapsack = population.getBestKnapsack();
+        Knapsack bestKnapsack = population.getFittestKnapsack();
         for(int i = 0; i < Configuration.MAX_ITERATIONS; i++){
-            bestKnapsack = population.getBestKnapsack();
+            bestKnapsack = population.getFittestKnapsack();
             if(i % 100 == 0){
                 System.out.println(bestKnapsack.getFitness());
             }
             population.evolve();
-            bestKnapsack = population.getBestKnapsack();
+            bestKnapsack = population.getFittestKnapsack();
 
         }
+        for(var sack : bestKnapsack.getKnapsackItems()){
+            System.out.println(sack.getNumber());
+        }
     }
-
 }

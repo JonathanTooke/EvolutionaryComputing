@@ -57,9 +57,13 @@ public class Knapsack implements Comparable<Knapsack>{
             value += knapsackItem.getValue();
         }
         if(weight > Configuration.MAX_CAPACITY){
-            return 50;
+            return 1;
         }
         return value;
+    }
+
+    public int calculateWeight(){
+        return this.knapsackItems.stream().mapToInt(k -> k.getWeight()).sum();
     }
 
     /**
@@ -113,29 +117,35 @@ public class Knapsack implements Comparable<Knapsack>{
         return children;
     }
     
-    public void bitFlipMutation(){
+    public Knapsack doBitFlipMutation(){
         for(int i = 0; i < GAConfiguration.MUTATION_ATTEMPTS; i++){
             int itemToMutate = Configuration.RANDOM_GENERATOR.nextInt(Configuration.KNAPSACK_ITEM_SELECTION.size());
-            boolean found = false;
-            for(var item : this.knapsackItems){
-                if (item.getNumber() == itemToMutate){
-                    this.knapsackItems.remove(item);
-                    found = true;
-                    break;
-                }
+            
+            //Check if the random item is in the knapsack. If it is, remove it and return this.
+            boolean found = this.knapsackItems.stream().map(x -> x.getNumber()).anyMatch(x -> x == itemToMutate);
+            if(found){
+                this.knapsackItems.stream().filter(x -> x.getNumber() == itemToMutate).collect(Collectors.toList());
+                return this;
             }
-            int sumWeight = this.calculateFitness();
-            if(!found && Configuration.KNAPSACK_ITEM_SELECTION.get(itemToMutate).getWeight() + sumWeight < Configuration.MAX_CAPACITY){
-                this.knapsackItems.add(Configuration.KNAPSACK_ITEM_SELECTION.get(itemToMutate));
-                break;
+
+            //Otherwise, add the random item to the knapsack.
+            this.knapsackItems.add(Configuration.KNAPSACK_ITEM_SELECTION.get(itemToMutate));
+
+            //Check if the new Knapsack is valid, if it is, return this.
+            if(this.isValid()){
+                return this;
+            }
+            //Otherwise, remove the new item that made it invalid.
+            else{
+                this.knapsackItems.remove(knapsackItems.size() - 1);
             }
         }
+        return this;
     }
 
-
-
     public boolean isValid(){
-        return calculateFitness() > 50;
+        return calculateFitness() != 1 
+            && this.knapsackItems.stream().distinct().collect(Collectors.toList()).size() == this.knapsackItems.size();
     }
 
     public List<KnapsackItem> getKnapsackItems() {
@@ -172,4 +182,25 @@ public class Knapsack implements Comparable<Knapsack>{
     public int compareTo(Knapsack other){
         return Integer.compare(other.getFitness(), this.fitness);
     }
+
+    // /**
+    //  * Check to see whether one Knapsack equals another.
+    //  * Not a perfect implementation since it does not compare the arrays,
+    //  * but is considerably faster and good enough.
+    //  * @return - boolean
+    //  */
+    // @Override
+    // public boolean equals(Object other) {
+    //     if (this == other)
+    //         return true;
+
+    //     if (other == null)
+    //         return false;
+
+    //     if (getClass() != other.getClass())
+    //         return false;
+
+    //     Knapsack otherSack = (Knapsack) other;
+    //     return this.fitness == otherSack.getFitness();
+    // } 
 }
