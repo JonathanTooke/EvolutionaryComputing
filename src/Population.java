@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.IntSummaryStatistics;
 import java.util.List;
 
 /**
@@ -36,23 +37,23 @@ public class Population {
      * Handles the process of evolving one population to the next.
      */
     public void evolve() {
-        //1. Update Fitness Values
+        //1. Extract The Elite 
+        List<Knapsack> elite = extractElite(this.population, GAConfiguration.ELITISM_RATIO);
+
+        //2. Select Parents
+        this.population = selectParents(this.population, this.config.getSelectionMethod());
+
+        //3. Offspring Production
+        this.population = createOffspring(this.population, this.config.getCrossoverMethod(), this.config.getCrossoverRatio());
+
+        //4. Offspring Mutation
+        this.population = mutateOffspring(this.population, this.config.getMutationMethod(), this.config.getMutationRatio());
+
+        //5. Update Fitness Values
         for(var sack : this.population){
             sack.setFitness(sack.calculateFitness());
         }
-
-        //2. Extract The Elite 
-        List<Knapsack> elite = extractElite(this.population, GAConfiguration.ELITISM_RATIO);
-
-        //3. Select Parents
-        this.population = selectParents(this.population, this.config.getSelectionMethod());
-
-        //4. Offspring Production
-        this.population = createOffspring(this.population, this.config.getCrossoverMethod(), this.config.getCrossoverRatio());
-
-        //5. Offspring Mutation
-        this.population = mutateOffspring(this.population, this.config.getMutationMethod(), this.config.getMutationRatio());
-
+        
         //6. Merge elite back in.
         this.population = mergeElite(elite, this.population);
 
@@ -63,7 +64,7 @@ public class Population {
     }
 
     ///////////////////////
-    /// Elitism Helpers ///
+    /// Elitism Methods ///
     ///////////////////////
 
     /**
@@ -87,15 +88,10 @@ public class Population {
      * to maintain population size.
      * @param elite - elite individuials from the previous generation.
      * @param population - new generation.
-     * @return List<Knapsack> - new population with elite members meged in.
+     * @return List<Knapsack> - new population with elite members merged in.
      */
     private List<Knapsack> mergeElite(List<Knapsack> elite, List<Knapsack> population){
-        List<Knapsack> newPopulation = new ArrayList<>();
-        for(var individual : elite){
-            if(!population.contains(individual)){
-                newPopulation.add(individual);
-            }
-        }
+        List<Knapsack> newPopulation = new ArrayList<>(elite);
         int individualsToAdd = population.size() - newPopulation.size();
         for (int i = 0; i < individualsToAdd; i++){
             int rand = Configuration.RANDOM_GENERATOR.nextInt(population.size());
@@ -227,31 +223,32 @@ public class Population {
     private List<Knapsack> mutateOffspring(List<Knapsack> population, String mutationMethod, double mutationRatio){
         List<Knapsack> mutatedPopulation = new ArrayList<>();
 
-        if(mutationMethod.equals("BFM")){
-            for(var sack : this.population){
-                double mutationProbability = Configuration.RANDOM_GENERATOR.nextDouble(); 
-                if(mutationProbability < mutationRatio){
-                    mutatedPopulation.add(sack.doBitFlipMutation());
-                }
-                else{
-                    mutatedPopulation.add(sack);
-                }
+        for(var sack : this.population){
+            double mutationProbability = Configuration.RANDOM_GENERATOR.nextDouble(); 
+            if(mutationProbability < mutationRatio){
+                switch(mutationMethod){
+                    case "BFM":
+                        mutatedPopulation.add(sack.doBitFlipMutation());
+                        break;
+                    case "IVM":
+                        mutatedPopulation.add(sack.doInversionMutation());
+                        break;
+                    case "ISM":
+                        mutatedPopulation.add(sack.doInsertionMutation());
+                        break;
+                    case "DPM":
+                        mutatedPopulation.add(sack.doDisplacementMutation());
+                        break;
+                    case "EXM":
+                        mutatedPopulation.add(sack.doExchangeMutation());
+                        break;
+                    default:
+                        throw new RuntimeException("Unknown mutation method");
+                } 
             }
-        }
-        else if(mutationMethod.equals("IVM")){
-            ;
-        }
-        else if(mutationMethod.equals("ISM")){
-            ;
-        }
-        else if(mutationMethod.equals("DPM")){
-            ;
-        }
-        else if(mutationMethod.equals("EXM")){
-            ;
-        }
-        else{
-            throw new RuntimeException("Unknown mutation method");
+            else{
+                mutatedPopulation.add(sack);
+            }
         }
         return mutatedPopulation;
     }
@@ -269,11 +266,19 @@ public class Population {
         return this.population.get(0);
     }
 
+    public IntSummaryStatistics getSummaryStats(){
+        return this.population.stream().mapToInt((x) -> x.getFitness()).summaryStatistics();
+    }
+
     /**
      * Debugging method.
      * Should always return 0 unless there is a bug.
      */
     private int countInvalidChildren(){
         return (int)this.population.stream().filter(k -> !k.isValid()).count();
+    }
+
+    public List<Knapsack> getPopulation(){
+        return this.population;
     }
 }

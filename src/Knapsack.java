@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,7 +8,7 @@ import java.util.stream.Collectors;
  * Representation of a chromosome in GA terms. 
  */
 public class Knapsack implements Comparable<Knapsack>{
-    private List<KnapsackItem> knapsackItems;
+    private ArrayList<KnapsackItem> knapsackItems;
     private int fitness;
     private double rwsValue;
     
@@ -20,7 +21,7 @@ public class Knapsack implements Comparable<Knapsack>{
      * Constructor with KnapsackItems supplied
      * @param knapsackItems
      */
-    public Knapsack(List<KnapsackItem> knapsackItems) {
+    public Knapsack(ArrayList<KnapsackItem> knapsackItems) {
         this.knapsackItems = knapsackItems;
     }
 
@@ -28,13 +29,13 @@ public class Knapsack implements Comparable<Knapsack>{
      * Generate a random list of Knapsack Items within the maximum capacity.
      * @return List<KnapsackItem> - list of KnapsackItems
      */
-    public List<KnapsackItem> generateRandom(){
+    public ArrayList<KnapsackItem> generateRandom(){
         int weight = 0;
-        List<KnapsackItem> itemsSelected = new ArrayList<>();
+        ArrayList<KnapsackItem> itemsSelected = new ArrayList<>();
         List<KnapsackItem> baseKnapsackItems = Configuration.KNAPSACK_ITEM_SELECTION.stream()
             .map(i -> i.clone())
             .collect(Collectors.toList());
-        while(weight < Configuration.MAX_CAPACITY){
+        while(weight < Configuration.MAX_CAPACITY ){
             KnapsackItem nextItem = baseKnapsackItems.get(Configuration.RANDOM_GENERATOR.nextInt(baseKnapsackItems.size()));
             if(weight + nextItem.getWeight() > Configuration.MAX_CAPACITY){
                 break;
@@ -42,6 +43,11 @@ public class Knapsack implements Comparable<Knapsack>{
             baseKnapsackItems.remove(nextItem);
             itemsSelected.add(nextItem);
             weight += nextItem.getWeight();
+            //Give some chance of not fulling the sack close to its full capacity.
+            double probabilityOfExit = Configuration.RANDOM_GENERATOR.nextDouble();
+            if(probabilityOfExit < 0.01){
+                break;
+            }
         }
         return itemsSelected;
     }
@@ -73,7 +79,6 @@ public class Knapsack implements Comparable<Knapsack>{
      * @return
      */
     public List<Knapsack> doCrossover(Knapsack other, String crossoverType){
-
         List<Knapsack> children = new ArrayList<>();
         int minLengthSack = Math.min(this.knapsackItems.size(), other.getKnapsackItems().size());
 
@@ -83,8 +88,8 @@ public class Knapsack implements Comparable<Knapsack>{
             int crossPoint1 = crossoverType.equals("1PX") ? 0 : Configuration.RANDOM_GENERATOR.nextInt(minLengthSack);
             int crossPoint2 = Configuration.RANDOM_GENERATOR.nextInt(minLengthSack) - crossPoint1;
 
-            List<KnapsackItem> c1 = new ArrayList<>();
-            List<KnapsackItem> c2 = new ArrayList<>();
+            ArrayList<KnapsackItem> c1 = new ArrayList<>();
+            ArrayList<KnapsackItem> c2 = new ArrayList<>();
 
             c1.addAll(this.knapsackItems.subList(0, crossPoint1));
             c1.addAll(other.getKnapsackItems().subList(crossPoint1, crossPoint2));
@@ -117,6 +122,12 @@ public class Knapsack implements Comparable<Knapsack>{
         return children;
     }
     
+    /**
+     * Implementation of Bit Flip Mutation.
+     * Note that the mutation will be attempted GAConfiguration.MUTATION_ATTEMPTS times.
+     * If it is unsuccesful in producing a valid child on every attempt, it will return the original child.
+     * @return Knapsack - mutated child.
+     */
     public Knapsack doBitFlipMutation(){
         for(int i = 0; i < GAConfiguration.MUTATION_ATTEMPTS; i++){
             int itemToMutate = Configuration.RANDOM_GENERATOR.nextInt(Configuration.KNAPSACK_ITEM_SELECTION.size());
@@ -124,8 +135,10 @@ public class Knapsack implements Comparable<Knapsack>{
             //Check if the random item is in the knapsack. If it is, remove it and return this.
             boolean found = this.knapsackItems.stream().map(x -> x.getNumber()).anyMatch(x -> x == itemToMutate);
             if(found){
-                this.knapsackItems.stream().filter(x -> x.getNumber() == itemToMutate).collect(Collectors.toList());
-                return this;
+                ArrayList<KnapsackItem> items = new ArrayList<>(this.knapsackItems.stream()
+                    .filter(x -> x.getNumber() == itemToMutate)
+                    .collect(Collectors.toList()));
+                return new Knapsack(items);
             }
 
             //Otherwise, add the random item to the knapsack.
@@ -140,6 +153,47 @@ public class Knapsack implements Comparable<Knapsack>{
                 this.knapsackItems.remove(knapsackItems.size() - 1);
             }
         }
+        return this;
+    }
+
+    /**
+     * Implementation of Exchange Mutation. 
+     * @return Knapsack - mutated child.
+     */
+    public Knapsack doExchangeMutation(){
+        int allele1 = Configuration.RANDOM_GENERATOR.nextInt(this.knapsackItems.size());
+        int allele2 = Configuration.RANDOM_GENERATOR.nextInt(this.knapsackItems.size());
+        Collections.swap(this.knapsackItems, allele1, allele2);
+        return this;
+    }
+
+    /**
+     * Implementation of Inversion Mutation. 
+     * @return Knapsack - mutated child.
+     */
+    public Knapsack doInversionMutation(){
+        int allele1 = Configuration.RANDOM_GENERATOR.nextInt(this.knapsackItems.size());
+        int allele2 = Configuration.RANDOM_GENERATOR.nextInt(this.knapsackItems.size());
+        Collections.reverse(this.knapsackItems.subList(allele1, allele2));
+        return this;
+    }
+
+    /**
+     * Implementation of Insertion Mutation. 
+     * @return Knapsack - mutated child.
+     */
+    public Knapsack doInsertionMutation(){
+        // int allele1 = Configuration.RANDOM_GENERATOR.nextInt(this.knapsackItems.size());
+        // int allele2 = Configuration.RANDOM_GENERATOR.nextInt(this.knapsackItems.size());
+        // int newIndex = Configuration.RANDOM_GENERATOR.nextInt(this.knapsackItems.size());
+        return this;
+    }
+
+    /**
+     * Implementation of Displacement Mutation. 
+     * @return Knapsack - mutated child.
+     */
+    public Knapsack doDisplacementMutation(){
         return this;
     }
 
@@ -201,6 +255,7 @@ public class Knapsack implements Comparable<Knapsack>{
     //         return false;
 
     //     Knapsack otherSack = (Knapsack) other;
-    //     return this.fitness == otherSack.getFitness();
+    //     return this.fitness == otherSack.getFitness()
+    //         && this.knapsackItems.equals(otherSack.getKnapsackItems());
     // } 
 }

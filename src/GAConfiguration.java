@@ -14,7 +14,7 @@ public class GAConfiguration extends Configuration {
     public static final int TOURNAMENT_SIZE = 3;
     public static final int CONCEPTION_ATTEMPTS = 10;
     public static final int MUTATION_ATTEMPTS = 10;
-    public static final double ELITISM_RATIO = 0.1;
+    public static final double ELITISM_RATIO = 0.01;
     private String selectionMethod;
     private String configuration;
     private double mutationRatio;

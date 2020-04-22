@@ -1,5 +1,5 @@
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 public class Application {
     public static void main(String... args) {                
@@ -19,18 +19,14 @@ public class Application {
     private static void runGAConfiguration(String fileName) {
         GAConfiguration config = new GAConfiguration(fileName);
         Population population = new Population(config);
-        Knapsack bestKnapsack = population.getFittestKnapsack();
         for(int i = 0; i < Configuration.MAX_ITERATIONS; i++){
-            bestKnapsack = population.getFittestKnapsack();
             if(i % 100 == 0){
-                System.out.println(bestKnapsack.getFitness());
+                System.out.println(population.getSummaryStats());
+                // Collections.sort(population.getPopulation());
+                // System.out.println(population.getPopulation().stream().map(x -> x.getFitness()).collect(Collectors.toList()));
             }
             population.evolve();
-            bestKnapsack = population.getFittestKnapsack();
 
-        }
-        for(var sack : bestKnapsack.getKnapsackItems()){
-            System.out.println(sack.getNumber());
         }
     }
 }
