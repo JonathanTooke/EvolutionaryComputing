@@ -1,19 +1,21 @@
-JAVAC=/usr/bin/javac
+JAVAC = /usr/bin/javac
 .SUFFIXES: .java .class
 
 SRCDIR=src
 BINDIR=bin
+CLASSES=MersenneTwister.class Configuration.class KnapsackItem.class GAConfiguration.class Knapsack.class Population.class Application.class
 
 $(BINDIR)/%.class:$(SRCDIR)/%.java
-	$(JAVAC) -d $(BINDIR)/ -cp $(BINDIR) $<
+	$(JAVAC) -d $(BINDIR)/ -cp $(BINDIR):$(SRCDIR): $<
 
-CLASSES=MersenneTwister.class KnapsackItem.class Configuration.class GAConfiguration.class Knapsack.class Population.class Application.class 
 CLASS_FILES=$(CLASSES:%.class=$(BINDIR)/%.class)
+
+SRC_FILES=$(SRC:%.java=$(SRCDIR)/%.java)
 
 default: $(CLASS_FILES)
 
+run:
+	java -cp $(BINDIR) Application -configuration ga_default_18.json
+
 clean:
 	rm $(BINDIR)/*.class
-
-run:
-	java -enableassertions -cp bin Application -configuration ga_default_01.json

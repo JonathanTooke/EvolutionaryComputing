@@ -2,7 +2,7 @@
  * Class used to store and access an individual KnapsackItem.
  * Representation of a gene in GA terms.
  */
-public class KnapsackItem implements Cloneable{
+public class KnapsackItem implements Cloneable, Comparable<KnapsackItem>{
     private int number;
     private int weight;
     private int value;
@@ -20,6 +20,17 @@ public class KnapsackItem implements Cloneable{
     }
 
     /**
+     * Constructor. Build a knapsack item given its number.
+     * @param number - knapsack item number
+     */
+    public KnapsackItem(int number){
+        this(number, 
+            Configuration.KNAPSACK_ITEM_SELECTION.get(number - 1).getWeight(),
+            Configuration.KNAPSACK_ITEM_SELECTION.get(number - 1).getValue()
+        );
+    }
+
+    /**
      * Deep copy KnapsackItem
      * @return - KnapsackItem
      */
@@ -27,6 +38,12 @@ public class KnapsackItem implements Cloneable{
     public KnapsackItem clone() {
         return new KnapsackItem(this.number, this.weight, this.value);
     }
+    
+    @Override
+    public int compareTo(KnapsackItem other){
+        return Integer.compare(other.number, this.number);
+    }
+
 
     /**
      * Check to see whether one KnapsackItem has the same
