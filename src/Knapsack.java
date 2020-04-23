@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -322,17 +323,22 @@ public class Knapsack implements Comparable<Knapsack>{
         return Integer.compare(other.getFitness(), this.fitness);
     }
 
-    @Override
-    public String toString(){
+    public String toReportString(boolean includeArray){
         StringBuilder sack = new StringBuilder();
-        sack.append(calculateWeight() + " ".repeat(5) + calculateFitness() + " ".repeat(5) + (double)calculateFitness()/Configuration.BEST_KNOWN_OPTIMUM*100 + "%" + "[");
-        for(boolean present : this.knapsackSelection){
-            if(present)
-                sack.append(1);
-            else
-                sack.append(0);
+        DecimalFormat df = new DecimalFormat("#.##"); 
+        String sQuality = df.format((double)calculateFitness()/Configuration.BEST_KNOWN_OPTIMUM*100) + "%";
+
+        sack.append(String.format("%0$-10s", calculateWeight()) + String.format("%0$-10s", calculateFitness()) + String.format("%0$-8s", sQuality));
+        if(includeArray){
+            sack.append("        [");
+            for(boolean present : this.knapsackSelection){
+                if(present)
+                    sack.append(1);
+                else
+                    sack.append(0);
+            }
+            sack.append("]");
         }
-        sack.append("]");
         return new String(sack);
     }
 

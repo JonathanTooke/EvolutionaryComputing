@@ -15,7 +15,7 @@ SRC_FILES=$(SRC:%.java=$(SRCDIR)/%.java)
 default: $(CLASS_FILES)
 
 run:
-	java -cp $(BINDIR) Application -configuration ga_default_14.json
+	java -cp $(BINDIR) Application -configuration ga_default_01.json
 
 clean:
 	rm $(BINDIR)/*.class

@@ -10,12 +10,13 @@ import java.io.IOException;
  */
 public class GAConfiguration extends Configuration {
     
-    public static final int POPULATION_SIZE = 5000; //must be even
+    public static final int POPULATION_SIZE = 2048; //must be even
     public static final int TOURNAMENT_SIZE = 3;
     public static final int CONCEPTION_ATTEMPTS = 10;
     public static final int MUTATION_ATTEMPTS = 10;
-    public static final double ELITISM_RATIO = 0;
+    public static final double ELITISM_RATIO = 0.05;
     public static final String GA_PATH = "data/configuration/ga/";
+    public static final int NUM_CONFIGURATION = 28;
     private String selectionMethod;
     private String configuration;
     private double mutationRatio;
@@ -96,4 +97,9 @@ public class GAConfiguration extends Configuration {
             + this.crossoverMethod + " (" + this.crossoverRatio + ")" + " | " 
             + this.mutationMethod + " (" + this.mutationRatio + ")";
     }
+
+    public int getNumConfigurations(){
+        return GAConfiguration.NUM_CONFIGURATION;
+    }
+
 }
