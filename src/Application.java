@@ -1,6 +1,3 @@
-import java.util.Collections;
-import java.util.stream.Collectors;
-
 public class Application {
     public static void main(String... args) {                
         if (args.length != 2){
@@ -18,15 +15,17 @@ public class Application {
      */ 
     private static void runGAConfiguration(String fileName) {
         GAConfiguration config = new GAConfiguration(fileName);
+        long startTime = System.currentTimeMillis();
         Population population = new Population(config);
+        Report report = new Report(fileName, config);
         for(int i = 0; i < Configuration.MAX_ITERATIONS; i++){
+            report.addIteration(i, population.getFittestKnapsack());
             if(i % 100 == 0){
                 System.out.println(population.getSummaryStats());
-                // Collections.sort(population.getPopulation());
-                // System.out.println(population.getPopulation().stream().map(x -> x.getFitness()).collect(Collectors.toList()));
             }
             population.evolve();
-
         }
+        long completeTime = System.currentTimeMillis() - startTime;
+        report.save(completeTime + "");
     }
 }

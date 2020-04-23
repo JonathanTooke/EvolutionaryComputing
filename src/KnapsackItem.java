@@ -44,7 +44,6 @@ public class KnapsackItem implements Cloneable, Comparable<KnapsackItem>{
         return Integer.compare(other.number, this.number);
     }
 
-
     /**
      * Check to see whether one KnapsackItem has the same
      * number (key) as another KnapsackItem for equality.

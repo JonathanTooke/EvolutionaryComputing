@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
  * Class used to represent store a knapsack for a given selection.
  * Representation of a chromosome in GA terms. 
  */
-public class Knapsack implements Cloneable, Comparable<Knapsack>{
+public class Knapsack implements Comparable<Knapsack>{
     private ArrayList<Boolean> knapsackSelection;
     private int fitness;
     private double rwsValue;
@@ -17,6 +17,18 @@ public class Knapsack implements Cloneable, Comparable<Knapsack>{
      */
     public Knapsack() {}
 
+
+    /**
+     * Copy constructor.
+     * @param knapsack
+     */
+    public Knapsack(Knapsack knapsack){
+        this.knapsackSelection = new ArrayList<Boolean>();
+        for(var item : knapsack.getKnapsackSelection()){
+            this.knapsackSelection.add(item);
+        }
+    }
+
     /**
      * Constructor.
      * @param knapsackSelection
@@ -25,42 +37,14 @@ public class Knapsack implements Cloneable, Comparable<Knapsack>{
         this.knapsackSelection = knapsackSelection;
     }
 
-    /**
-     * Generate a random knapsackSelection within the maximum knapsack capacity.
-     * @return List<Boolean> - binary list representing knapsacks selected.
-     */
-    private ArrayList<Boolean> generateRandom(){
+    public Knapsack withRandomKnapsackItems() {
+        this.knapsackSelection = generateRandomItems();
+        return this;
+    }
 
-        //Generate binary representation
-        ArrayList<Boolean> itemsSelected = new ArrayList<>();
-        for(int i = 0; i < Configuration.NUM_ITEMS; i++){
-            itemsSelected.add(false);
-        }
-
-        //Clone KnapsackItems for selection
-        List<KnapsackItem> baseKnapsackItems = Configuration.KNAPSACK_ITEM_SELECTION.stream()
-            .map(i -> i.clone())
-            .collect(Collectors.toList());
-
-        //Iteratively add items to the knapsack
-        int weight = 0;
-        while(weight < Configuration.MAX_CAPACITY){
-            KnapsackItem nextItem = baseKnapsackItems.get(Configuration.RANDOM_GENERATOR.nextInt(baseKnapsackItems.size()));
-            weight += nextItem.getWeight();
-
-            if(weight > Configuration.MAX_CAPACITY)
-                break;
-            
-            //Add new item, Note -1 for 0 indexing
-            itemsSelected.set(nextItem.getNumber() - 1, true);
-            baseKnapsackItems.remove(nextItem);
-            
-            //Give some chance of not filling the sack to its full capacity to increase genetic diversity.
-            double probabilityOfExit = Configuration.RANDOM_GENERATOR.nextDouble();
-            if(probabilityOfExit < 0.01)
-                break;
-        }
-        return itemsSelected;
+    public Knapsack withFitnessCalculated() {
+        this.fitness = calculateFitness();
+        return this;
     }
 
     /** 
@@ -74,13 +58,21 @@ public class Knapsack implements Cloneable, Comparable<Knapsack>{
     }
 
     /**
-     * Determine the weiht of all of the selected items in the knapsack.
+     * Determine the weight of all of the selected items in the knapsack.
      * @return sum of knapsack item weight in knapsack.
      */
     private int calculateWeight(){
         return mapFromBinaryRepresentation(this.knapsackSelection).stream().mapToInt(k -> k.getWeight()).sum();
     }
 
+    public boolean isValid(){
+        return this.fitness > 1 && this.knapsackSelection.size() == Configuration.NUM_ITEMS;
+    }
+
+    ///////////////////////////
+    //// Genetic Operators ////
+    ///////////////////////////
+    
     /**
      * One and Two Point Crossover Operations
      * @param other - the other Knapsack to perform the crossover with.
@@ -96,6 +88,7 @@ public class Knapsack implements Cloneable, Comparable<Knapsack>{
         //Note that this can be disabled by setting GAConfiguration.CONCEPTION_ATTEMPTS = 1.
         for(int i = 0; i < GAConfiguration.CONCEPTION_ATTEMPTS; i++){
 
+            //Set first crossover point to 0 if 1PX Crossover.
             int crossPoint1 = crossoverType.equals("1PX") ? 0 : Configuration.RANDOM_GENERATOR.nextInt(geneSize);
             int crossPoint2 = Configuration.RANDOM_GENERATOR.nextInt(geneSize - crossPoint1) + crossPoint1;
 
@@ -132,7 +125,7 @@ public class Knapsack implements Cloneable, Comparable<Knapsack>{
         }
         return children;
     }
-    
+
     /**
      * Implementation of Bit Flip Mutation.
      * Note that the mutation will be attempted GAConfiguration.MUTATION_ATTEMPTS times.
@@ -195,9 +188,20 @@ public class Knapsack implements Cloneable, Comparable<Knapsack>{
      * @return Knapsack - mutated child.
      */
     public Knapsack doInsertionMutation(){
-        // int allele1 = Configuration.RANDOM_GENERATOR.nextInt(this.knapsackItems.size());
-        // int allele2 = Configuration.RANDOM_GENERATOR.nextInt(this.knapsackItems.size());
-        // int newIndex = Configuration.RANDOM_GENERATOR.nextInt(this.knapsackItems.size());
+        for(int i = 0; i < GAConfiguration.MUTATION_ATTEMPTS; i++){
+            ArrayList<Boolean> newSelection = copyBoolArrayList(this.knapsackSelection);
+
+            int allele1 = Configuration.RANDOM_GENERATOR.nextInt(newSelection.size());
+            int allele2 = Configuration.RANDOM_GENERATOR.nextInt(newSelection.size());
+            boolean value = newSelection.get(allele2);
+
+            newSelection.remove(allele2);
+            newSelection.add(allele1 + 1, value);
+
+            Knapsack mutatedKnapsack = new Knapsack(newSelection).withFitnessCalculated();
+            if(mutatedKnapsack.isValid())
+                return mutatedKnapsack;
+        }
         return this;
     }
 
@@ -206,46 +210,91 @@ public class Knapsack implements Cloneable, Comparable<Knapsack>{
      * @return Knapsack - mutated child.
      */
     public Knapsack doDisplacementMutation(){
+        for(int i = 0; i < GAConfiguration.MUTATION_ATTEMPTS; i++){
+            ArrayList<Boolean> newSelection = copyBoolArrayList(this.knapsackSelection);
+
+            int allele1 = Configuration.RANDOM_GENERATOR.nextInt(newSelection.size());
+            int allele2 = Configuration.RANDOM_GENERATOR.nextInt(newSelection.size());
+
+            int leftAllele = Math.min(allele1, allele2);
+            int rightAllele = Math.max(allele1, allele2);
+
+            var selectionSublist = new ArrayList<Boolean>(newSelection.subList(leftAllele, rightAllele));
+            for(int j = leftAllele; j < rightAllele + 1; j++){
+                newSelection.remove(leftAllele);
+            }
+
+            int index = Configuration.RANDOM_GENERATOR.nextInt(newSelection.size()+1);
+            newSelection.addAll(index, selectionSublist);
+
+            Knapsack mutatedKnapsack = new Knapsack(newSelection).withFitnessCalculated();
+            if(mutatedKnapsack.isValid())
+                return mutatedKnapsack;
+        }
         return this;
     }
 
-    public ArrayList<Boolean> getKnapsackSelection() {
-        return this.knapsackSelection;
+    ////////////////////////
+    //// Helper Methods ////
+    ////////////////////////
+    
+    /**
+     * Generate a random knapsackSelection within the maximum knapsack capacity.
+     * @return List<Boolean> - binary list representing knapsacks selected.
+     */
+    private ArrayList<Boolean> generateRandomItems(){
+
+        //Generate binary representation
+        ArrayList<Boolean> itemsSelected = generateFalseList(Configuration.NUM_ITEMS);
+
+        //Clone KnapsackItems for selection
+        List<KnapsackItem> baseKnapsackItems = Configuration.KNAPSACK_ITEM_SELECTION.stream()
+            .map(i -> i.clone())
+            .collect(Collectors.toList());
+
+        //Iteratively add items to the knapsack
+        int weight = 0;
+        while(weight < Configuration.MAX_CAPACITY){
+            KnapsackItem nextItem = baseKnapsackItems.get(Configuration.RANDOM_GENERATOR.nextInt(baseKnapsackItems.size()));
+            weight += nextItem.getWeight();
+
+            if(weight > Configuration.MAX_CAPACITY)
+                break;
+            
+            //Add new item, Note -1 for 0 indexing
+            itemsSelected.set(nextItem.getNumber() - 1, true);
+            baseKnapsackItems.remove(nextItem);
+            
+            //Give some chance of not filling the sack to its full capacity to increase genetic diversity.
+            double probabilityOfExit = Configuration.RANDOM_GENERATOR.nextDouble();
+            if(probabilityOfExit < 0.01)
+                break;
+        }
+        return itemsSelected;
     }
 
-    public boolean isValid(){
-        return this.fitness > 1;
+    /**
+     * Populate an Arraylist with False items
+     * @param length - number of items to populate.
+     */
+    private ArrayList<Boolean> generateFalseList(int length){
+        ArrayList<Boolean> elements = new ArrayList<>();
+        for(int i = 0; i < length; i++){
+            elements.add(false);
+        }
+        return elements;
     }
 
-    public Knapsack withRandomKnapsackItems() {
-        this.knapsackSelection = generateRandom();
-        return this;
-    }
-
-    public Knapsack withFitnessCalculated() {
-        this.fitness = calculateFitness();
-        return this;
-    }
-
-    public double getRwsValue() {
-        return this.rwsValue;
-    }
-
-    public void setRwsValue(double rwsValue) {
-        this.rwsValue = rwsValue;
-    }
-
-    public int getFitness(){
-        return this.fitness;
-    }
-
-    public void setFitness(int fitness){
-        this.fitness = fitness;
-    }
-
-    @Override
-    public int compareTo(Knapsack other){
-        return Integer.compare(this.fitness, other.getFitness());
+    /**
+     * Deep Copy ArrayList
+     * @return - ArrayList<Boolean> 
+     */
+    private ArrayList<Boolean> copyBoolArrayList(ArrayList<Boolean> array){
+        ArrayList<Boolean> boolArray = new ArrayList<>();
+        for(var item : array){
+            boolArray.add(item);
+        }
+        return boolArray;
     }
 
     /**
@@ -265,14 +314,49 @@ public class Knapsack implements Cloneable, Comparable<Knapsack>{
     }
 
     /**
-     * Deep Copy ArrayList
-     * @return - ArrayList<Boolean> 
+     * Compare by fitness value where larger fitness > smaller fitness.
+     * @return
      */
-    private ArrayList<Boolean> copyBoolArrayList(ArrayList<Boolean> array){
-        ArrayList<Boolean> boolArray = new ArrayList<>();
-        for(var item : array){
-            boolArray.add(item);
+    @Override
+    public int compareTo(Knapsack other){
+        return Integer.compare(other.getFitness(), this.fitness);
+    }
+
+    @Override
+    public String toString(){
+        StringBuilder sack = new StringBuilder();
+        sack.append(calculateWeight() + " ".repeat(5) + calculateFitness() + " ".repeat(5) + (double)calculateFitness()/Configuration.BEST_KNOWN_OPTIMUM*100 + "%" + "[");
+        for(boolean present : this.knapsackSelection){
+            if(present)
+                sack.append(1);
+            else
+                sack.append(0);
         }
-        return boolArray;
+        sack.append("]");
+        return new String(sack);
+    }
+
+    /////////////////////////////
+    //// Getters and Setters ////
+    /////////////////////////////
+    
+    public ArrayList<Boolean> getKnapsackSelection() {
+        return this.knapsackSelection;
+    }
+
+    public double getRwsValue() {
+        return this.rwsValue;
+    }
+
+    public void setRwsValue(double rwsValue) {
+        this.rwsValue = rwsValue;
+    }
+
+    public int getFitness(){
+        return this.fitness;
+    }
+
+    public void setFitness(int fitness){
+        this.fitness = fitness;
     }
 }

@@ -10,11 +10,12 @@ import java.io.IOException;
  */
 public class GAConfiguration extends Configuration {
     
-    public static final int POPULATION_SIZE = 2048; //must be even
+    public static final int POPULATION_SIZE = 5000; //must be even
     public static final int TOURNAMENT_SIZE = 3;
     public static final int CONCEPTION_ATTEMPTS = 10;
     public static final int MUTATION_ATTEMPTS = 10;
-    public static final double ELITISM_RATIO = 0.01;
+    public static final double ELITISM_RATIO = 0;
+    public static final String GA_PATH = "data/configuration/ga/";
     private String selectionMethod;
     private String configuration;
     private double mutationRatio;
@@ -37,7 +38,7 @@ public class GAConfiguration extends Configuration {
      */
     @Override
     protected void loadConfig (String fileName){
-        fileName = "data/configuration/ga/" + fileName;
+        fileName = GA_PATH + fileName;
         File file = new File(fileName);
         try {
             Scanner sc = new Scanner(file); 
@@ -87,5 +88,12 @@ public class GAConfiguration extends Configuration {
 
     public String getMutationMethod() {
         return this.mutationMethod;
+    }
+
+    public String toString() {
+        return "GA" + " | #" + Configuration.MAX_ITERATIONS + " | " 
+            + this.selectionMethod + " | " 
+            + this.crossoverMethod + " (" + this.crossoverRatio + ")" + " | " 
+            + this.mutationMethod + " (" + this.mutationRatio + ")";
     }
 }

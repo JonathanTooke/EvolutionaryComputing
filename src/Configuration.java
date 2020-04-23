@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public abstract class Configuration {
     public static final int MAX_CAPACITY = 822;
     public static final String KNAPSACK_PATH = "data/knapsack/knapsack_instance.csv";
-    public static final int MAX_ITERATIONS = 10000;
+    public static final int MAX_ITERATIONS = 500;
     public static final int BEST_KNOWN_OPTIMUM = 997;
     public static final int NUM_ITEMS = 150;
     public static final List<KnapsackItem> KNAPSACK_ITEM_SELECTION = loadKnapsackItemSelection(Configuration.KNAPSACK_PATH);
@@ -52,4 +52,7 @@ public abstract class Configuration {
      * @param fileName
      */
     protected abstract void loadConfig(String fileName);
+
+    @Override
+    public abstract String toString();
 }

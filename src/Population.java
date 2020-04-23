@@ -78,7 +78,9 @@ public class Population {
         int num_elite = (int)(population.size() * elitismRatio);
 
         List<Knapsack> elite = new ArrayList<>();
-        elite.addAll(population.subList(0, num_elite));
+        for(int i = 0; i < num_elite; i++){
+            elite.add(new Knapsack(population.get(i)).withFitnessCalculated());
+        }
         return elite;
     }
 
