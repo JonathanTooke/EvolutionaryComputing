@@ -7,69 +7,78 @@ import java.util.stream.Collectors;
  * Class used to represent store a knapsack for a given selection.
  * Representation of a chromosome in GA terms. 
  */
-public class Knapsack implements Comparable<Knapsack>{
-    private ArrayList<KnapsackItem> knapsackItems;
+public class Knapsack implements Cloneable, Comparable<Knapsack>{
+    private ArrayList<Boolean> knapsackSelection;
     private int fitness;
     private double rwsValue;
     
     /**
-     * Default constructor
+     * Default constructor.
      */
     public Knapsack() {}
 
     /**
-     * Constructor with KnapsackItems supplied
-     * @param knapsackItems
+     * Constructor.
+     * @param knapsackSelection
      */
-    public Knapsack(ArrayList<KnapsackItem> knapsackItems) {
-        this.knapsackItems = knapsackItems;
+    public Knapsack(ArrayList<Boolean> knapsackSelection) {
+        this.knapsackSelection = knapsackSelection;
     }
 
     /**
-     * Generate a random list of Knapsack Items within the maximum capacity.
-     * @return List<KnapsackItem> - list of KnapsackItems
+     * Generate a random knapsackSelection within the maximum knapsack capacity.
+     * @return List<Boolean> - binary list representing knapsacks selected.
      */
-    public ArrayList<KnapsackItem> generateRandom(){
-        int weight = 0;
-        ArrayList<KnapsackItem> itemsSelected = new ArrayList<>();
+    private ArrayList<Boolean> generateRandom(){
+
+        //Generate binary representation
+        ArrayList<Boolean> itemsSelected = new ArrayList<>();
+        for(int i = 0; i < Configuration.NUM_ITEMS; i++){
+            itemsSelected.add(false);
+        }
+
+        //Clone KnapsackItems for selection
         List<KnapsackItem> baseKnapsackItems = Configuration.KNAPSACK_ITEM_SELECTION.stream()
             .map(i -> i.clone())
             .collect(Collectors.toList());
-        while(weight < Configuration.MAX_CAPACITY ){
+
+        //Iteratively add items to the knapsack
+        int weight = 0;
+        while(weight < Configuration.MAX_CAPACITY){
             KnapsackItem nextItem = baseKnapsackItems.get(Configuration.RANDOM_GENERATOR.nextInt(baseKnapsackItems.size()));
-            if(weight + nextItem.getWeight() > Configuration.MAX_CAPACITY){
-                break;
-            }
-            baseKnapsackItems.remove(nextItem);
-            itemsSelected.add(nextItem);
             weight += nextItem.getWeight();
-            //Give some chance of not fulling the sack to its full capacity.
-            double probabilityOfExit = Configuration.RANDOM_GENERATOR.nextDouble();
-            if(probabilityOfExit < 0.01){
+
+            if(weight > Configuration.MAX_CAPACITY)
                 break;
-            }
+            
+            //Add new item, Note -1 for 0 indexing
+            itemsSelected.set(nextItem.getNumber() - 1, true);
+            baseKnapsackItems.remove(nextItem);
+            
+            //Give some chance of not filling the sack to its full capacity to increase genetic diversity.
+            double probabilityOfExit = Configuration.RANDOM_GENERATOR.nextDouble();
+            if(probabilityOfExit < 0.01)
+                break;
         }
         return itemsSelected;
     }
 
     /** 
      * Fitness function for determining the fitness of this knapsack.
-     * @return
+     * @return 1 for an invalid knapsack, sum of values of individual items selected for a valid knapsack.
      */
     public int calculateFitness(){
-        int weight = 0, value = 0;
-        for (var knapsackItem : knapsackItems){
-            weight += knapsackItem.getWeight();
-            value += knapsackItem.getValue();
-        }
-        if(weight > Configuration.MAX_CAPACITY){
+        if(calculateWeight() > Configuration.MAX_CAPACITY)
             return 1;
-        }
-        return value;
+        return mapFromBinaryRepresentation(this.knapsackSelection).stream().mapToInt(k -> k.getValue()).sum();
     }
 
-    public int calculateWeight(){
-        return this.knapsackItems.stream().mapToInt(k -> k.getWeight()).sum();
+    /**
+     * Determine the weiht of all of the selected items in the knapsack.
+     * @return sum of knapsack item weight in knapsack.
+     */
+    private int calculateWeight(){
+        return mapFromBinaryRepresentation(this.knapsackSelection).stream().mapToInt(k -> k.getWeight()).sum();
     }
 
     /**
@@ -78,11 +87,8 @@ public class Knapsack implements Comparable<Knapsack>{
      * @param crossoverType - Either 1PX or 2PX i.e. 1 or 2 point.
      * @return
      */
-    public ArrayList<Knapsack> doCrossover(Knapsack other, String crossoverType){
-        ArrayList<Boolean> binaryKnapsackItems = mapToBinaryRepresentation(this.knapsackItems);
-        ArrayList<Boolean> otherBinaryKnapsackItems = mapToBinaryRepresentation(other.getKnapsackItems());
-        assert(binaryKnapsackItems.size() == otherBinaryKnapsackItems.size());
-        int geneSize = binaryKnapsackItems.size();
+    public List<Knapsack> doCrossover(Knapsack other, String crossoverType){
+        int geneSize = this.knapsackSelection.size();
 
         ArrayList<Knapsack> children = new ArrayList<>();
 
@@ -96,15 +102,15 @@ public class Knapsack implements Comparable<Knapsack>{
             ArrayList<Boolean> c1 = new ArrayList<>();
             ArrayList<Boolean> c2 = new ArrayList<>();
 
-            c1.addAll(binaryKnapsackItems.subList(0, crossPoint1));
-            c1.addAll(otherBinaryKnapsackItems.subList(crossPoint1, crossPoint2));
-            c1.addAll(binaryKnapsackItems.subList(crossPoint2, geneSize));
-            Knapsack child1 = new Knapsack(mapFromBinaryRepresentation(c1));
+            c1.addAll(this.knapsackSelection.subList(0, crossPoint1));
+            c1.addAll(other.getKnapsackSelection().subList(crossPoint1, crossPoint2));
+            c1.addAll(this.knapsackSelection.subList(crossPoint2, geneSize));
+            Knapsack child1 = new Knapsack(c1).withFitnessCalculated();
 
-            c2.addAll(otherBinaryKnapsackItems.subList(0, crossPoint1));
-            c2.addAll(binaryKnapsackItems.subList(crossPoint1, crossPoint2));
-            c2.addAll(otherBinaryKnapsackItems.subList(crossPoint2, geneSize));
-            Knapsack child2 = new Knapsack(mapFromBinaryRepresentation(c2));
+            c2.addAll(other.getKnapsackSelection().subList(0, crossPoint1));
+            c2.addAll(this.knapsackSelection.subList(crossPoint1, crossPoint2));
+            c2.addAll(other.getKnapsackSelection().subList(crossPoint2, geneSize));
+            Knapsack child2 = new Knapsack(c2).withFitnessCalculated();
             
             if(child1.isValid() && children.size() < 2){
                 children.add(child1);
@@ -134,12 +140,12 @@ public class Knapsack implements Comparable<Knapsack>{
      * @return Knapsack - mutated child.
      */
     public Knapsack doBitFlipMutation(){
-        ArrayList<Boolean> binaryKnapsackItems = mapToBinaryRepresentation(this.knapsackItems);
         for(int i = 0; i < GAConfiguration.MUTATION_ATTEMPTS; i++){
-            int itemToMutate = Configuration.RANDOM_GENERATOR.nextInt(binaryKnapsackItems.size());
-            binaryKnapsackItems.set(itemToMutate, !binaryKnapsackItems.get(itemToMutate));
+            ArrayList<Boolean> newSelection = copyBoolArrayList(this.knapsackSelection);
+            int itemToMutate = Configuration.RANDOM_GENERATOR.nextInt(newSelection.size());
+            newSelection.set(itemToMutate, !newSelection.get(itemToMutate));
 
-            Knapsack mutatedKnapsack = new Knapsack(mapFromBinaryRepresentation(binaryKnapsackItems));
+            Knapsack mutatedKnapsack = new Knapsack(newSelection).withFitnessCalculated();
             if(mutatedKnapsack.isValid())
                 return mutatedKnapsack;
         }
@@ -152,13 +158,13 @@ public class Knapsack implements Comparable<Knapsack>{
      */
     public Knapsack doExchangeMutation(){
         for(int i = 0; i < GAConfiguration.MUTATION_ATTEMPTS; i++){
-            ArrayList<Boolean> binaryKnapsackItems = mapToBinaryRepresentation(this.knapsackItems);
+            ArrayList<Boolean> newSelection = copyBoolArrayList(this.knapsackSelection);
 
-            int allele1 = Configuration.RANDOM_GENERATOR.nextInt(binaryKnapsackItems.size());
-            int allele2 = Configuration.RANDOM_GENERATOR.nextInt(binaryKnapsackItems.size());
-            Collections.swap(binaryKnapsackItems, allele1, allele2);
+            int allele1 = Configuration.RANDOM_GENERATOR.nextInt(newSelection.size());
+            int allele2 = Configuration.RANDOM_GENERATOR.nextInt(newSelection.size());
+            Collections.swap(newSelection, allele1, allele2);
 
-            Knapsack mutatedKnapsack = new Knapsack(mapFromBinaryRepresentation(binaryKnapsackItems));
+            Knapsack mutatedKnapsack = new Knapsack(newSelection).withFitnessCalculated();
             if(mutatedKnapsack.isValid())
                 return mutatedKnapsack;
         }
@@ -171,13 +177,13 @@ public class Knapsack implements Comparable<Knapsack>{
      */
     public Knapsack doInversionMutation(){
         for(int i = 0; i < GAConfiguration.MUTATION_ATTEMPTS; i++){
-            ArrayList<Boolean> binaryKnapsackItems = mapToBinaryRepresentation(this.knapsackItems);
+            ArrayList<Boolean> newSelection = copyBoolArrayList(this.knapsackSelection);
 
-            int allele1 = Configuration.RANDOM_GENERATOR.nextInt(binaryKnapsackItems.size());
-            int allele2 = Configuration.RANDOM_GENERATOR.nextInt(binaryKnapsackItems.size());
-            Collections.reverse(binaryKnapsackItems.subList(Math.min(allele1, allele2), Math.max(allele1, allele2)));
+            int allele1 = Configuration.RANDOM_GENERATOR.nextInt(newSelection.size());
+            int allele2 = Configuration.RANDOM_GENERATOR.nextInt(newSelection.size());
+            Collections.reverse(newSelection.subList(Math.min(allele1, allele2), Math.max(allele1, allele2)));
 
-            Knapsack mutatedKnapsack = new Knapsack(mapFromBinaryRepresentation(binaryKnapsackItems));
+            Knapsack mutatedKnapsack = new Knapsack(newSelection).withFitnessCalculated();
             if(mutatedKnapsack.isValid())
                 return mutatedKnapsack;
         }
@@ -203,17 +209,16 @@ public class Knapsack implements Comparable<Knapsack>{
         return this;
     }
 
-    public boolean isValid(){
-        return calculateFitness() != 1 
-            && this.knapsackItems.stream().distinct().collect(Collectors.toList()).size() == this.knapsackItems.size();
+    public ArrayList<Boolean> getKnapsackSelection() {
+        return this.knapsackSelection;
     }
 
-    public ArrayList<KnapsackItem> getKnapsackItems() {
-        return this.knapsackItems;
+    public boolean isValid(){
+        return this.fitness > 1;
     }
 
     public Knapsack withRandomKnapsackItems() {
-        this.knapsackItems = generateRandom();
+        this.knapsackSelection = generateRandom();
         return this;
     }
 
@@ -243,25 +248,12 @@ public class Knapsack implements Comparable<Knapsack>{
         return Integer.compare(this.fitness, other.getFitness());
     }
 
-    private ArrayList<Boolean> mapToBinaryRepresentation(ArrayList<KnapsackItem> knapsackItems){
-        ArrayList<Boolean> binaryKnapsackItems = new ArrayList<>();
-        for(int i = 0; i < Configuration.NUM_ITEMS; i++){
-            binaryKnapsackItems.add(false);
-        }
-
-        List<Integer> numbers = knapsackItems.stream()
-            .map(sack -> sack.getNumber())
-            .collect(Collectors.toList());
-
-        for(int number : numbers){
-            binaryKnapsackItems.set((number - 1), true);
-        }
-        assert(binaryKnapsackItems.size() == Configuration.NUM_ITEMS);
-        assert(new Knapsack(mapFromBinaryRepresentation(binaryKnapsackItems)).isValid());
-        return binaryKnapsackItems;
-    }
-
-    private ArrayList<KnapsackItem> mapFromBinaryRepresentation(ArrayList<Boolean> binaryKnapsackItems){
+    /**
+     * Map from Binary representation to List<KnapsackItem> representation.
+     * @param binaryKnapsackItems
+     * @return
+     */
+    private List<KnapsackItem> mapFromBinaryRepresentation(ArrayList<Boolean> binaryKnapsackItems){
         assert(binaryKnapsackItems.size() == Configuration.NUM_ITEMS);
         ArrayList<KnapsackItem> knapsackItems = new ArrayList<>();
         for(int i = 0; i < binaryKnapsackItems.size(); i++){
@@ -270,5 +262,17 @@ public class Knapsack implements Comparable<Knapsack>{
             }
         }
         return knapsackItems;
+    }
+
+    /**
+     * Deep Copy ArrayList
+     * @return - ArrayList<Boolean> 
+     */
+    private ArrayList<Boolean> copyBoolArrayList(ArrayList<Boolean> array){
+        ArrayList<Boolean> boolArray = new ArrayList<>();
+        for(var item : array){
+            boolArray.add(item);
+        }
+        return boolArray;
     }
 }
