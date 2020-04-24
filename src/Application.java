@@ -38,7 +38,7 @@ public class Application {
         if(configurationType.equals("ga")){
             for (int i = 0; i < PopulationConfiguration.NUM_CONFIGURATIONS; i++){
                 String fileNumber = (i + 1) + "";
-                if(i < 10)
+                if(i < 9)
                     fileNumber = "0" + fileNumber;
                 configurationReports.add(runConfiguration(configurationType + "_default_" + fileNumber + ".json"));
             }
@@ -49,7 +49,7 @@ public class Application {
         else if(configurationType.equals("pso")){
             for (int i = 0; i < SwarmConfiguration.NUM_CONFIGURATIONS; i++){
                 String fileNumber = (i + 1) + "";
-                if(i < 10)
+                if(i < 9)
                     fileNumber = "0" + fileNumber;
                 configurationReports.add(runConfiguration(configurationType + "_default_" + fileNumber + ".json"));
             }

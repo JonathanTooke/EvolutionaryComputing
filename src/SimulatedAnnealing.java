@@ -1,6 +1,7 @@
+import java.util.ArrayList;
 import java.util.IntSummaryStatistics;
 
-public class SimulatedAnnealing {
+public class SimulatedAnnealing extends Knapsack{
     private SimulatedAnnealingConfiguration config;
     private double temperature;
     private double coolingRate;
@@ -14,9 +15,14 @@ public class SimulatedAnnealing {
         this.config = config;
         this.temperature = config.getInitialTemperature();
         this.coolingRate = config.getCoolingRate();
+        this.knapsackSelection = generateRandomItems();
     }
 
     public Knapsack execute(){
+        
+
+
+        temperature = temperature*coolingRate;
         return null;
     }
 
@@ -25,5 +31,15 @@ public class SimulatedAnnealing {
             return 1;
         }
         return Math.exp((energy - newEnergy) / temperature);
+    }
+
+    private ArrayList<Boolean> getNewSolution(){
+        int worst = -1;
+        int best = -1;
+        ArrayList<KnapsackItem> sackItems = (ArrayList<KnapsackItem>) mapFromBinaryRepresentation(this.knapsackSelection);
+        for(int i = 0; i < this.knapsackSelection.size(); i++){
+
+        }
+        return null;
     }
 }

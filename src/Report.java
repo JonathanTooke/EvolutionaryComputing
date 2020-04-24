@@ -74,7 +74,7 @@ public class Report implements Comparable<Report>{
     public String completeReport(){
         StringBuilder reportBody = new StringBuilder();
         for(int i = 0; i < bestKnapsacksByIteration.size(); i++){
-            reportBody.append(String.format("%0$-4s", i+1));
+            reportBody.append(String.format("%0$-5s", i+1));
             reportBody.append(" ".repeat(5));
             reportBody.append(bestKnapsacksByIteration.get(i).toReportString(true) + "\n");
         }

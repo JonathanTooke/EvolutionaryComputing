@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class SimulatedAnnealingConfiguration extends Configuration {
     public static final String PSO_PATH = "data/configuration/sa/";
     public static final int NUM_CONFIGURATIONS = 25; 
+    public static final int MIN_TEMPERATURE = 1;
     private double initialTemperature;
     private double coolingRate;
 

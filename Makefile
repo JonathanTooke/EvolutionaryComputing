@@ -15,7 +15,7 @@ SRC_FILES=$(SRC:%.java=$(SRCDIR)/%.java)
 default: $(CLASS_FILES)
 
 run:
-	java -cp $(BINDIR) Application -configuration pso_default_01.json
+	java -cp $(BINDIR) Application -search_best_configuration pso
 
 clean:
 	rm $(BINDIR)/*.class
