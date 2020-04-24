@@ -4,7 +4,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
+/**
+ * Class controlling logic for main application loop supporting
+ * Genetic Alorithms (GA), Simmulated Annealing (SA), and 
+ * Particle Swarm Optimization (PSO).
+ */
 public class Application {
+    /**
+     * Process command line arguments and launch application loop.
+     * @param args 
+     *  - args[0] = "-configuration" ... run simulation for specific file type args[1]
+     *      - args[1] = [ga/sa/pso]_default_[fileNumber].json
+     *  - args[0] = "-search_best_configuration" ... run simulation for configurations of all type args[1]
+     *      - args[1] = [ga/sa/pso]
+     */
     public static void main(String... args) {                
         if (args.length != 2){
             throw new IllegalArgumentException("Expected 2 arguments, but received" + args.length);
@@ -23,7 +36,7 @@ public class Application {
     private static void searchBestConfiguration(String configurationType){
         ArrayList<Report> configurationReports = new ArrayList<>();
         if(configurationType.equals("ga")){
-            for (int i = 0; i < 1; i++){
+            for (int i = 0; i < PopulationConfiguration.NUM_CONFIGURATIONS; i++){
                 String fileNumber = (i + 1) + "";
                 if(i < 10)
                     fileNumber = "0" + fileNumber;
@@ -34,7 +47,12 @@ public class Application {
             ;
         }
         else if(configurationType.equals("pso")){
-            ;
+            for (int i = 0; i < SwarmConfiguration.NUM_CONFIGURATIONS; i++){
+                String fileNumber = (i + 1) + "";
+                if(i < 10)
+                    fileNumber = "0" + fileNumber;
+                configurationReports.add(runConfiguration(configurationType + "_default_" + fileNumber + ".json"));
+            }
         }
         else{
             throw new RuntimeException("Invalid configuration type supplied as argument to application.");
@@ -55,6 +73,17 @@ public class Application {
             report = runGAConfiguration(fileName);
             report.save("data/results/ga/report_"+ fileName.substring(0, fileName.length() - 5) + "_" + year + month + day + ".txt");
         }
+        else if(fileName.matches("^pso.*")){
+            report = runPSOConfiguration(fileName);
+            report.save("data/results/pso/report_"+ fileName.substring(0, fileName.length() - 5) + "_" + year + month + day + ".txt");
+        }
+        // else if(fileName.matches("^sa.*")){
+        //     report = runSAConfiguration(fileName);
+        //     report.save("data/results/sa/report_"+ fileName.substring(0, fileName.length() - 5) + "_" + year + month + day + ".txt");
+        // }
+        else{
+            throw new RuntimeException("Invalid configuration file name supplied.");
+        }
         return report;
     }
 
@@ -64,18 +93,31 @@ public class Application {
      * @return Nothing.
      */ 
     private static Report runGAConfiguration(String fileName) {
-        GAConfiguration config = new GAConfiguration(fileName);
+        PopulationConfiguration config = new PopulationConfiguration(fileName);
         Population population = new Population(config);
         Report report = new Report(fileName, config);
         long startTime = System.currentTimeMillis();
 
         for(int i = 0; i < Configuration.MAX_ITERATIONS; i++){
-            report.addIteration(population.getFittestKnapsack());
-
+            Knapsack fittestKnapsack = population.evolve();
+            report.addIteration(fittestKnapsack);
             if(i % 100 == 0)
                 System.out.println(population.getSummaryStats());
+        }
+        long completeTime = System.currentTimeMillis() - startTime;
+        report.setCompleteTime(completeTime);
+        return report;
+    }
 
-            population.evolve();
+    private static Report runPSOConfiguration(String fileName){
+        SwarmConfiguration config = new SwarmConfiguration(fileName);
+        Swarm swarm = new Swarm();
+        Report report = new Report(fileName, config);
+        long startTime = System.currentTimeMillis();
+
+        for(int i = 0; i < Configuration.MAX_ITERATIONS; i++){
+            Knapsack fittestKnapsack = swarm.execute();
+            report.addIteration(fittestKnapsack);
         }
         long completeTime = System.currentTimeMillis() - startTime;
         report.setCompleteTime(completeTime);

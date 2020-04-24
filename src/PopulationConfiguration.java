@@ -8,7 +8,7 @@ import java.io.IOException;
 /**
  * Config specific to Genetic Algorithms (GA).
  */
-public class GAConfiguration extends Configuration {
+public class PopulationConfiguration extends Configuration {
     
     public static final int POPULATION_SIZE = 2048; //must be even
     public static final int TOURNAMENT_SIZE = 3;
@@ -16,7 +16,7 @@ public class GAConfiguration extends Configuration {
     public static final int MUTATION_ATTEMPTS = 10;
     public static final double ELITISM_RATIO = 0.05;
     public static final String GA_PATH = "data/configuration/ga/";
-    public static final int NUM_CONFIGURATION = 28;
+    public static final int NUM_CONFIGURATIONS = 28;
     private String selectionMethod;
     private String configuration;
     private double mutationRatio;
@@ -28,7 +28,7 @@ public class GAConfiguration extends Configuration {
      * Constructor
      * @param fileName - containing config data
      */
-    public GAConfiguration(String fileName){
+    public PopulationConfiguration(String fileName){
         super();
         loadConfig(fileName);
     }
@@ -99,7 +99,7 @@ public class GAConfiguration extends Configuration {
     }
 
     public int getNumConfigurations(){
-        return GAConfiguration.NUM_CONFIGURATION;
+        return PopulationConfiguration.NUM_CONFIGURATIONS;
     }
 
 }
