@@ -1,11 +1,12 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 
+/**
+ * Class used to generate a report for a given simulation and write it to a file.
+ */
 public class Report implements Comparable<Report>{
     private String fileName;
     private Configuration config;
@@ -14,6 +15,11 @@ public class Report implements Comparable<Report>{
     private int bestFitness;
     private long completeTime;
 
+    /**
+     * Constructor.
+     * @param fileName - of config.
+     * @param config - for simulation.
+     */
     public Report(String fileName, Configuration config) {
         this.fileName = fileName;
         this.config = config;
@@ -21,11 +27,20 @@ public class Report implements Comparable<Report>{
         this.reportHeader = generateReportHeader();
     }
 
+    /**
+     * Add new knapsack and update best fitness value.
+     * Note best fitness won't necessarily be the newest knapsack if elitism ratio is 0.
+     * @param bestKnapsack - for the current iteration
+     */
     public void addIteration(Knapsack bestKnapsack){
-        this.bestFitness = bestKnapsack.getFitness();
+        this.bestFitness = bestKnapsack.getFitness() > this.bestFitness ? bestKnapsack.getFitness() : this.bestFitness;
         bestKnapsacksByIteration.add(bestKnapsack);
     }
 
+    /**
+     * Generate the report header.
+     * @return
+     */
     public String generateReportHeader() {
         StringBuilder reportHeader = new StringBuilder("Evaluation | " + new Date() + "\n");
         reportHeader.append("Configuration: " + this.fileName + "\n");
@@ -36,16 +51,15 @@ public class Report implements Comparable<Report>{
         return new String(reportHeader);
     }
 
-    public void save(){
+    /**
+     * Write the report to a file
+     * @param saveFilePath - where it should be saved to.
+     */
+    public void save(String saveFilePath){
         String reportBody = completeReport();
         String report = this.reportHeader + reportBody;
-        Date date = new Date();
-        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        int year  = localDate.getYear();
-        int month = localDate.getMonthValue();
-        int day   = localDate.getDayOfMonth();
         try{
-            Files.writeString(Paths.get("data/results/ga/report_"+ this.fileName.substring(0,this.fileName.length() - 5) + "_" + year + month + day + ".txt"), report);
+            Files.writeString(Paths.get(saveFilePath), report);
         }
         catch(IOException e){
             e.printStackTrace();
@@ -53,6 +67,9 @@ public class Report implements Comparable<Report>{
         }
     }
 
+    /**
+     * Generate the report body.
+     */
     public String completeReport(){
         StringBuilder reportBody = new StringBuilder();
         for(int i = 0; i < bestKnapsacksByIteration.size(); i++){
@@ -74,25 +91,74 @@ public class Report implements Comparable<Report>{
             reportBody.append(bestKnapsacksByIteration.get(quartile - 1).toReportString(false) + "\n");
         }
 
-        String sequenceLength = "..."; 
-        String improvement = "..."; 
-
-        reportBody.append("Plateau | Longest sequence " + sequenceLength + " with improvement less average " + improvement + "%\n\n");
+        reportBody.append("Plateau | Longest sequence " + getLongestPlateau() + "\n\n");
         reportBody.append("=".repeat(100) + "\n");
 
         return new String(reportBody);
     }
 
+    /**
+     * Set the time in ms that it took to run this simulation.
+     * @param completeTime
+     */
     public void setCompleteTime(long completeTime){
         this.completeTime = completeTime;
     }
 
+    /**
+     * Compare reports by fittest knapsack.
+     */
     @Override
     public int compareTo(Report other){
         return Integer.compare(other.getBestFitness(), this.bestFitness);
     }
 
+    /**
+     * Get the fittest knapsack for this report.
+     * @return
+     */
     public int getBestFitness(){
         return bestFitness;
+    }
+
+    /**
+     * Find the longest period with no growth in KnapsackFitness.
+     * @return longest period in form "[start]-[end]"
+     */
+    private String getLongestPlateau(){
+        int longestStart = 0, longestEnd = 0, start = 0, last = 0;
+    
+        for (int i = 0; i < this.bestKnapsacksByIteration.size(); i++){
+            int currentFitness = this.bestKnapsacksByIteration.get(i).getFitness();
+            if(last != currentFitness){
+                if(i - start > longestEnd - longestStart){
+                    longestStart = start;
+                    longestEnd = i;
+                }
+                start = i + 1;
+            }
+            last = currentFitness;
+        }
+        if(this.bestKnapsacksByIteration.size() - start > longestEnd - longestStart){
+            longestStart = start;
+            longestEnd = this.bestKnapsacksByIteration.size();
+        }
+
+        return longestEnd - longestStart > 0 ? longestStart + "-" + longestEnd : "no plateau.";
+    }
+
+    /**
+     * Save configuration used for this simulation.
+     * @param saveFilePath
+     */
+    public void saveJson(String saveFilePath, String configurationType){
+        try{
+            String bestConfiguration = new String(Files.readAllBytes(Paths.get("data/configuration/" + configurationType + "/" +  this.fileName)));
+            Files.writeString(Paths.get(saveFilePath + configurationType + "_best.json"), bestConfiguration);
+        }
+        catch(IOException e){
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 }

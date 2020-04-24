@@ -1,4 +1,8 @@
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 
 public class Application {
     public static void main(String... args) {                
@@ -18,30 +22,38 @@ public class Application {
 
     private static void searchBestConfiguration(String configurationType){
         ArrayList<Report> configurationReports = new ArrayList<>();
-        switch(configurationType){
-            case("ga"):
-                for (int i = 0; i < GAConfiguration.NUM_CONFIGURATION; i++){
-                    String fileNumber = (i + 1) + "";
-                    if(i < 10)
-                        fileNumber = "0" + fileNumber;
-                    configurationReports.add(runConfiguration(configurationType + "_default_" + fileNumber + ".json"));
-                }
-                break;
-            case("sa"):
-                break;
-            case("pso"):
-                break;
-            default:
-                throw new RuntimeException("Invalid configuration type supplied as argument to application.");
+        if(configurationType.equals("ga")){
+            for (int i = 0; i < 1; i++){
+                String fileNumber = (i + 1) + "";
+                if(i < 10)
+                    fileNumber = "0" + fileNumber;
+                configurationReports.add(runConfiguration(configurationType + "_default_" + fileNumber + ".json"));
+            }
         }
+        else if(configurationType.equals("sa")){
+            ;
+        }
+        else if(configurationType.equals("pso")){
+            ;
+        }
+        else{
+            throw new RuntimeException("Invalid configuration type supplied as argument to application.");
+        }
+        Collections.sort(configurationReports);
+        configurationReports.get(0).saveJson("data/results/best_configurations/", configurationType);
     }
 
     private static Report runConfiguration(String fileName){
+        Date date = new Date();
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        int year  = localDate.getYear();
+        int month = localDate.getMonthValue();
+        int day   = localDate.getDayOfMonth();
         Report report = null;
 
         if(fileName.matches("^ga.*")){
             report = runGAConfiguration(fileName);
-            report.save();
+            report.save("data/results/ga/report_"+ fileName.substring(0, fileName.length() - 5) + "_" + year + month + day + ".txt");
         }
         return report;
     }
