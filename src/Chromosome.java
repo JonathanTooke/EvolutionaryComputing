@@ -3,19 +3,22 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Class used to represent a knapsack for a given selection in a GA Algorithm
+ * Chromosome used to represent a Knapsack for a given selection in a GA Algorithm
  * and provide crossover and mutation operators.
  */
 public class Chromosome extends Knapsack{
     private double rwsValue;
 
+    /**
+     * Default Constructor.
+     */
     public Chromosome(){
         super();
     }
-    
+
     /**
      * Constructor.
-     * @param knapsackSelection
+     * @param knapsackSelection - populate initial selected knapsack items
      */
     public Chromosome(ArrayList<Boolean> knapsackSelection) {
         this.knapsackSelection = knapsackSelection;
@@ -25,9 +28,9 @@ public class Chromosome extends Knapsack{
      * Copy constructor.
      * @param knapsack
      */
-    public Chromosome(Knapsack knapsack){
+    public Chromosome(Chromosome chromosome){
         this.knapsackSelection = new ArrayList<Boolean>();
-        for(var item : knapsack.getKnapsackSelection()){
+        for(var item : chromosome.getKnapsackSelection()){
             this.knapsackSelection.add(item);
         }
     }
@@ -218,6 +221,10 @@ public class Chromosome extends Knapsack{
         }
         return this;
     }
+
+    /////////////////////////////
+    //// Getters and Setters ////
+    /////////////////////////////
 
     public double getRwsValue() {
         return this.rwsValue;

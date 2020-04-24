@@ -10,11 +10,6 @@ public class Knapsack implements Comparable<Knapsack>{
     protected ArrayList<Boolean> knapsackSelection;
     protected int fitness;
 
-    /**
-     * Default constructor.
-     */
-    public Knapsack(){}
-
     /** 
      * Fitness function for determining the fitness of this knapsack.
      * @return 1 for an invalid knapsack, sum of values of individual items selected for a valid knapsack.
@@ -26,13 +21,10 @@ public class Knapsack implements Comparable<Knapsack>{
     }
 
     /**
-     * Determine the weight of all of the selected items in the knapsack.
-     * @return sum of knapsack item weight in knapsack.
+     * Check if a given knapsack is valid by ensuring it is the right size
+     * and has a fitness greater than 1 (the fitness assigned to an invalid knapsack).
+     * @return true if valid knapsack, false othewise.
      */
-    protected int calculateWeight(){
-        return mapFromBinaryRepresentation(this.knapsackSelection).stream().mapToInt(k -> k.getWeight()).sum();
-    }
-
     public boolean isValid(){
         return this.fitness > 1 && this.knapsackSelection.size() == Configuration.NUM_ITEMS;
     }
@@ -41,6 +33,14 @@ public class Knapsack implements Comparable<Knapsack>{
     //// Helper Methods ////
     ////////////////////////
     
+    /**
+     * Determine the weight of all of the selected items in the knapsack.
+     * @return sum of knapsack item weight in knapsack.
+     */
+    protected int calculateWeight(){
+        return mapFromBinaryRepresentation(this.knapsackSelection).stream().mapToInt(k -> k.getWeight()).sum();
+    }
+
     /**
      * Generate a random knapsackSelection within the maximum knapsack capacity.
      * @return List<Boolean> - binary list representing knapsacks selected.
@@ -77,7 +77,7 @@ public class Knapsack implements Comparable<Knapsack>{
     }
 
     /**
-     * Populate an Arraylist with False items
+     * Populate an Arraylist with False items.
      * @param length - number of items to populate.
      */
     protected ArrayList<Boolean> generateFalseList(int length){
@@ -89,7 +89,8 @@ public class Knapsack implements Comparable<Knapsack>{
     }
 
     /**
-     * Deep Copy ArrayList
+     * Deep Copy ArrayList.
+     * @param array - Boolean array to be deep copied
      * @return - ArrayList<Boolean> 
      */
     protected ArrayList<Boolean> copyBoolArrayList(ArrayList<Boolean> array){
@@ -102,8 +103,8 @@ public class Knapsack implements Comparable<Knapsack>{
 
     /**
      * Map from Binary representation to List<KnapsackItem> representation.
-     * @param binaryKnapsackItems
-     * @return
+     * @param binaryKnapsackItems - binary list of knapsacks selected.
+     * @return List<KnapsackItem> - object representation of selected knapsack items.
      */
     protected List<KnapsackItem> mapFromBinaryRepresentation(ArrayList<Boolean> binaryKnapsackItems){
         assert(binaryKnapsackItems.size() == Configuration.NUM_ITEMS);
@@ -118,7 +119,8 @@ public class Knapsack implements Comparable<Knapsack>{
 
     /**
      * Compare by fitness value where larger fitness > smaller fitness.
-     * @return
+     * @param other - knapsack to compare with.
+     * @return 0 if equal fitness, 1 if this fitness > other fitness, -1 if other fitness > this fitness
      */
     @Override
     public int compareTo(Knapsack other){
@@ -126,9 +128,9 @@ public class Knapsack implements Comparable<Knapsack>{
     }
 
     /**
-     * String representation of Knapsack customized for generatin a Report.
-     * @param includeArray
-     * @return
+     * String representation of Knapsack customized for generating a Report.
+     * @param includeArray - Include a binary representation of the knapsackSelection.
+     * @return customised representation of knapsack for a Report.
      */
     public String toReportString(boolean includeArray){
         StringBuilder sack = new StringBuilder();

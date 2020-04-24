@@ -4,7 +4,7 @@ import java.util.IntSummaryStatistics;
 import java.util.List;
 
 /**
- * Class used to represent and evolve a population of knapsacks for a GA Configuration.
+ * Class used to represent and evolve a population of Chromosomes for a given GA Configuration.
  */
 public class Population {
     private PopulationConfiguration config;
@@ -21,8 +21,8 @@ public class Population {
     }
 
     /**
-     * Build and return a randomly generated population of valid knapsacks.
-     * @return List<Knapsack>.
+     * Build and return a randomly generated population of valid Chromosomes.
+     * @return List<Chromosome>.
      */
     private List<Chromosome> initializePopulation() {
         List<Chromosome> initialPopulation = new ArrayList<>();
@@ -57,7 +57,7 @@ public class Population {
         //6. Merge elite back in.
         this.population = mergeElite(elite, this.population);
 
-        //Debugging, can be enabled with the java -enableassertions flag.
+        //Validation, can be enabled with the java -enableassertions flag.
         assert(this.population.containsAll(elite));
         assert(this.population.size() == PopulationConfiguration.POPULATION_SIZE);
         assert(countInvalidChildren() == 0);
@@ -74,7 +74,7 @@ public class Population {
      * Extract the elite from the population given an elitism ratio.
      * @param population - parent population.
      * @param elitismRatio - ratio of elite to be extracted.
-     * @return List<GAKnapsack>
+     * @return List<Chromosome>
      */
     private List<Chromosome> extractElite(List<Chromosome> population, double elitismRatio){
         Collections.sort(population);
@@ -93,7 +93,7 @@ public class Population {
      * to maintain population size.
      * @param elite - elite individuials from the previous generation.
      * @param population - new generation.
-     * @return List<GAKnapsack> - new population with elite members merged in.
+     * @return List<Chromosome> - new population with elite members merged in.
      */
     private List<Chromosome> mergeElite(List<Chromosome> elite, List<Chromosome> population){
         List<Chromosome> newPopulation = new ArrayList<>(elite);
@@ -112,7 +112,7 @@ public class Population {
 
     /**
      * Select the parents based on selection method.
-     * @return - List<GAKnapsack> seleceted parents.
+     * @return - List<Chromosome> selected parents.
      */
     private List<Chromosome> selectParents(List<Chromosome> population, String selectionMethod){
         if(selectionMethod.equals("RWS")){
@@ -128,7 +128,7 @@ public class Population {
 
     /**
      * Implementation of Roulette Wheel Selection.
-     * @return List<GAKnapsack> - selected parents.
+     * @return List<Chromosome> - selected parents.
      */
     private List<Chromosome> rouletteWheelSelect(List<Chromosome> population){
         List<Chromosome> newPopulation = new ArrayList<>();
@@ -159,7 +159,7 @@ public class Population {
 
     /**
      * Implementation of Tournament Selection.
-     * @return List<GAKnapsack> - selected parents.
+     * @return List<Chromosome> - selected parents.
      */
     private List<Chromosome> tournamentSelect(List<Chromosome> population){
         List<Chromosome> newPopulation = new ArrayList<>();
@@ -182,7 +182,7 @@ public class Population {
 
     /**
      * Create offspring by considering crossover probability and method.
-     * @return List<GAKnapsack> - new offspring
+     * @return List<Chromosome> - new offspring
      */
     private List<Chromosome> createOffspring(List<Chromosome> population, String crossoverMethod, double crossoverRatio){
         ArrayList<Chromosome> tempPop = new ArrayList<>();
@@ -223,7 +223,7 @@ public class Population {
      * @param population - child population on current iteration.
      * @param mutationMethod - method used to mutate ["BFM", "IVM", "ISM", "DPM", "EXM"].
      * @param mutationRatio - probability of mutation.
-     * @return List<Knapsack> - mutated offspring.
+     * @return List<Chromosome> - mutated offspring.
      */
     private List<Chromosome> mutateOffspring(List<Chromosome> population, String mutationMethod, double mutationRatio){
         List<Chromosome> mutatedPopulation = new ArrayList<>();
@@ -263,14 +263,18 @@ public class Population {
     //////////////////////
 
     /**
-     * Return the fittest knapsack in the population.
-     * @return Knapsack
+     * Return the fittest Chromosome in the population.
+     * @return Chromosome - fittest chromosome
      */
     public Chromosome getFittestKnapsack(){
         Collections.sort(this.population);
         return this.population.get(0);
     }
 
+    /**
+     * View summary stats for a given population state.
+     * @return IntSummaryStatistics - summary statistics.
+     */
     public IntSummaryStatistics getSummaryStats(){
         return this.population.stream().mapToInt((x) -> x.getFitness()).summaryStatistics();
     }
@@ -283,6 +287,10 @@ public class Population {
         return (int)this.population.stream().filter(k -> !k.isValid()).count();
     }
 
+    /**
+     * Get the population
+     * @return List<Chromosome> - the population
+     */
     public List<Chromosome> getPopulation(){
         return this.population;
     }
