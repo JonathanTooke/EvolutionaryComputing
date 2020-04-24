@@ -26,7 +26,7 @@ public class Knapsack implements Comparable<Knapsack>{
      * @return true if valid knapsack, false othewise.
      */
     public boolean isValid(){
-        return this.fitness > 1 && this.knapsackSelection.size() == Configuration.NUM_ITEMS;
+        return calculateWeight() < Configuration.MAX_CAPACITY && this.knapsackSelection.size() == Configuration.NUM_ITEMS;
     }
 
     ////////////////////////
@@ -67,11 +67,6 @@ public class Knapsack implements Comparable<Knapsack>{
             //Add new item, Note -1 for 0 indexing
             itemsSelected.set(nextItem.getNumber() - 1, true);
             baseKnapsackItems.remove(nextItem);
-            
-            //Give some chance of not filling the sack to its full capacity to increase genetic diversity.
-            double probabilityOfExit = Configuration.RANDOM_GENERATOR.nextDouble();
-            if(probabilityOfExit < 0.01)
-                break;
         }
         return itemsSelected;
     }
@@ -93,7 +88,7 @@ public class Knapsack implements Comparable<Knapsack>{
      * @param array - Boolean array to be deep copied
      * @return - ArrayList<Boolean> 
      */
-    protected ArrayList<Boolean> copyBoolArrayList(ArrayList<Boolean> array){
+    protected static ArrayList<Boolean> copyBoolArrayList(ArrayList<Boolean> array){
         ArrayList<Boolean> boolArray = new ArrayList<>();
         for(var item : array){
             boolArray.add(item);
@@ -151,6 +146,13 @@ public class Knapsack implements Comparable<Knapsack>{
         return new String(sack);
     }
 
+    /**
+     * Update the fitness for this knapsack
+     */
+    public void updateFitness(){
+        this.fitness = calculateFitness();
+    }
+
     /////////////////////////////
     //// Getters and Setters ////
     /////////////////////////////
@@ -161,9 +163,5 @@ public class Knapsack implements Comparable<Knapsack>{
 
     public int getFitness(){
         return this.fitness;
-    }
-
-    public void setFitness(int fitness){
-        this.fitness = fitness;
     }
 }

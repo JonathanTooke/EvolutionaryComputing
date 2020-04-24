@@ -4,10 +4,15 @@ import java.util.List;
 
 /**
  * Chromosome used to represent a Knapsack for a given selection in a GA Algorithm
- * and provide crossover and mutation operators.
+ * Provides crossover and mutation operators.
  */
 public class Chromosome extends Knapsack{
     private double rwsValue;
+
+
+    ///////////////////////////
+    ////    Constructors   ////
+    ///////////////////////////
 
     /**
      * Default Constructor.
@@ -21,14 +26,16 @@ public class Chromosome extends Knapsack{
      * @param knapsackSelection - populate initial selected knapsack items
      */
     public Chromosome(ArrayList<Boolean> knapsackSelection) {
+        super();
         this.knapsackSelection = knapsackSelection;
     }
 
     /**
      * Copy constructor.
-     * @param knapsack
+     * @param chromosome - chromosome to copy.
      */
     public Chromosome(Chromosome chromosome){
+        super();
         this.knapsackSelection = new ArrayList<Boolean>();
         for(var item : chromosome.getKnapsackSelection()){
             this.knapsackSelection.add(item);
@@ -38,7 +45,7 @@ public class Chromosome extends Knapsack{
     /**
      * For chaining with constructor to include a randomly
      * selected set of knapsack items.
-     * @return this
+     * @return Chromosome - this
      */
     public Chromosome withRandomKnapsackItems() {
         this.knapsackSelection = generateRandomItems();
@@ -48,7 +55,7 @@ public class Chromosome extends Knapsack{
     /**
      * For chaining with constructor to include a fitness 
      * calculation.
-     * @return this
+     * @return Chromosome - this
      */
     public Chromosome withFitnessCalculated() {
         this.fitness = calculateFitness();

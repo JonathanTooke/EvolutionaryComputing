@@ -30,7 +30,7 @@ public class Report implements Comparable<Report>{
     /**
      * Add new knapsack and update best fitness value.
      * Note best fitness won't necessarily be the newest knapsack if elitism ratio is 0.
-     * @param bestKnapsack - for the current iteration
+     * @param bestKnapsack - for the current iteration.
      */
     public void addIteration(Knapsack bestKnapsack){
         this.bestFitness = bestKnapsack.getFitness() > this.bestFitness ? bestKnapsack.getFitness() : this.bestFitness;
@@ -39,7 +39,7 @@ public class Report implements Comparable<Report>{
 
     /**
      * Generate the report header.
-     * @return
+     * @return String - report header
      */
     public String generateReportHeader() {
         StringBuilder reportHeader = new StringBuilder("Evaluation | " + new Date() + "\n");
@@ -69,6 +69,7 @@ public class Report implements Comparable<Report>{
 
     /**
      * Generate the report body.
+     * @return String - report body.
      */
     public String completeReport(){
         StringBuilder reportBody = new StringBuilder();
@@ -123,21 +124,21 @@ public class Report implements Comparable<Report>{
 
     /**
      * Find the longest period with no growth in KnapsackFitness.
-     * @return longest period in form "[start]-[end]"
+     * @return String - longest period in form "[start]-[end]"
      */
     private String getLongestPlateau(){
-        int longestStart = 0, longestEnd = 0, start = 0, last = 0;
+        int longestStart = 0, longestEnd = 0, start = 0, oldFitness = 0;
     
         for (int i = 0; i < this.bestKnapsacksByIteration.size(); i++){
             int currentFitness = this.bestKnapsacksByIteration.get(i).getFitness();
-            if(last != currentFitness){
+            if(oldFitness != currentFitness){
                 if(i - start > longestEnd - longestStart){
                     longestStart = start;
                     longestEnd = i;
                 }
                 start = i + 1;
             }
-            last = currentFitness;
+            oldFitness = currentFitness;
         }
         if(this.bestKnapsacksByIteration.size() - start > longestEnd - longestStart){
             longestStart = start;
@@ -149,7 +150,8 @@ public class Report implements Comparable<Report>{
 
     /**
      * Save configuration used for this simulation.
-     * @param saveFilePath
+     * @param saveFilePath - path for the file to be saved to
+     * @param configurationType - ["ga"|"sa"|"pso"]
      */
     public void saveJson(String saveFilePath, String configurationType){
         try{

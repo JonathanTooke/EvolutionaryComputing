@@ -51,7 +51,7 @@ public class Population {
 
         //5. Update Fitness Values
         for(var sack : this.population){
-            sack.setFitness(sack.calculateFitness());
+            sack.updateFitness();
         }
         
         //6. Merge elite back in.

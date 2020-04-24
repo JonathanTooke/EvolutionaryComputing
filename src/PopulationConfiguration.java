@@ -10,7 +10,7 @@ import java.io.IOException;
  */
 public class PopulationConfiguration extends Configuration {
     
-    public static final int POPULATION_SIZE = 2048; //must be even
+    public static final int POPULATION_SIZE = 2048;
     public static final int TOURNAMENT_SIZE = 3;
     public static final int CONCEPTION_ATTEMPTS = 10;
     public static final int MUTATION_ATTEMPTS = 10;

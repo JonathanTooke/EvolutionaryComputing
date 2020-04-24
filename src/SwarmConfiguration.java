@@ -14,7 +14,6 @@ public class SwarmConfiguration extends Configuration {
     private int minimumVelocity;
     private int maximumVelocity;
     private double inertia;
-    private String configuration;
     private int numParticles;
     private double c1;
     private double c2;
@@ -28,14 +27,19 @@ public class SwarmConfiguration extends Configuration {
         loadConfig(fileName);
     }
 
-    public int getNumConfigurations(){
-        return 0;
-    }
-
+    /**
+     * String representation of configuration for report.
+     */
     public String toString(){
-        return "PSO" + " | #" + Configuration.MAX_ITERATIONS + " | ";
+        return "PSO" + " | #" + Configuration.MAX_ITERATIONS + " | " + "num_particles: " + " | " 
+        + this.numParticles + " | " + "Min_V: " + this.minimumVelocity + " | " + "Max_V: " + this.maximumVelocity + " | "
+        + "w: " + this.inertia + " | " + "c1: " + this.c1 + " | " + "c2: " + this.c2;
     }
 
+    /**
+     * Parse the JSON file and load the necessary config data
+     * @param fileName - containing config data
+     */
     @Override
     protected void loadConfig(String fileName){
         fileName = PSO_PATH + fileName;
@@ -55,7 +59,6 @@ public class SwarmConfiguration extends Configuration {
             this.minimumVelocity = Integer.parseInt(list.get(0).get(1));
             this.maximumVelocity = Integer.parseInt(list.get(1).get(1));
             this.inertia = Double.parseDouble(list.get(2).get(1));
-            this.configuration = list.get(3).get(1);
             this.numParticles = Integer.parseInt(list.get(4).get(1));
             this.c1 = Double.parseDouble(list.get(5).get(1));
             this.c2 = Double.parseDouble(list.get(6).get(1));
@@ -66,4 +69,33 @@ public class SwarmConfiguration extends Configuration {
             System.exit(1);
         }
     }
+
+    public int getMinimumVelocity() {
+        return this.minimumVelocity;
+    }
+
+    public int getMaximumVelocity() {
+        return this.maximumVelocity;
+    }
+
+    public double getInertia() {
+        return this.inertia;
+    }
+
+    public int getNumParticles() {
+        return this.numParticles;
+    }
+
+    public double getC1() {
+        return this.c1;
+    }
+
+    public double getC2() {
+        return this.c2;
+    }
+    
+    public int getNumConfigurations(){
+        return SwarmConfiguration.NUM_CONFIGURATIONS;
+    }
+
 }

@@ -3,7 +3,7 @@ JAVAC = /usr/bin/javac
 
 SRCDIR=src
 BINDIR=bin
-CLASSES=MersenneTwister.class Configuration.class KnapsackItem.class GAConfiguration.class Knapsack.class Population.class Application.class Report.class
+CLASSES=MersenneTwister.class Configuration.class KnapsackItem.class Chromosome.class Knapsack.class Population.class PopulationConfiguration.class Application.class Report.class Swarm.class Particle.class SwarmConfiguration.class
 
 $(BINDIR)/%.class:$(SRCDIR)/%.java
 	$(JAVAC) -d $(BINDIR)/ -cp $(BINDIR):$(SRCDIR): $<
@@ -15,7 +15,7 @@ SRC_FILES=$(SRC:%.java=$(SRCDIR)/%.java)
 default: $(CLASS_FILES)
 
 run:
-	java -cp $(BINDIR) Application -search_best_configuration ga
+	java -cp $(BINDIR) Application -configuration pso_default_01.json
 
 clean:
 	rm $(BINDIR)/*.class

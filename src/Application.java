@@ -77,10 +77,10 @@ public class Application {
             report = runPSOConfiguration(fileName);
             report.save("data/results/pso/report_"+ fileName.substring(0, fileName.length() - 5) + "_" + year + month + day + ".txt");
         }
-        // else if(fileName.matches("^sa.*")){
-        //     report = runSAConfiguration(fileName);
-        //     report.save("data/results/sa/report_"+ fileName.substring(0, fileName.length() - 5) + "_" + year + month + day + ".txt");
-        // }
+        else if(fileName.matches("^sa.*")){
+            report = runSAConfiguration(fileName);
+            report.save("data/results/sa/report_"+ fileName.substring(0, fileName.length() - 5) + "_" + year + month + day + ".txt");
+        }
         else{
             throw new RuntimeException("Invalid configuration file name supplied.");
         }
@@ -109,15 +109,32 @@ public class Application {
         return report;
     }
 
+    private static Report runSAConfiguration(String fileName){
+        SimulatedAnnealingConfiguration config = new SimulatedAnnealingConfiguration(fileName);
+        SimulatedAnnealing sa = new SimulatedAnnealing(config);
+        Report report = new Report(fileName, config);
+        long startTime = System.currentTimeMillis();
+
+        for(int i = 0; i < Configuration.MAX_ITERATIONS; i++){
+            Knapsack fittestKnapsack = sa.execute();
+            report.addIteration(fittestKnapsack);
+        }
+        long completeTime = System.currentTimeMillis() - startTime;
+        report.setCompleteTime(completeTime);
+        return report;
+    }
+
     private static Report runPSOConfiguration(String fileName){
         SwarmConfiguration config = new SwarmConfiguration(fileName);
-        Swarm swarm = new Swarm();
+        Swarm swarm = new Swarm(config);
         Report report = new Report(fileName, config);
         long startTime = System.currentTimeMillis();
 
         for(int i = 0; i < Configuration.MAX_ITERATIONS; i++){
             Knapsack fittestKnapsack = swarm.execute();
             report.addIteration(fittestKnapsack);
+            if(i % 100 == 0)
+                System.out.println(swarm.getSummaryStats());
         }
         long completeTime = System.currentTimeMillis() - startTime;
         report.setCompleteTime(completeTime);
