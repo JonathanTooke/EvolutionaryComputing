@@ -6,7 +6,7 @@ import java.util.Date;
 
 /**
  * Class controlling logic for main application loop supporting
- * Genetic Alorithms (GA), Simmulated Annealing (SA), and 
+ * Genetic Alorithms (GA), Simulated Annealing (SA), and 
  * Particle Swarm Optimization (PSO).
  */
 public class Application {
@@ -86,7 +86,7 @@ public class Application {
         else if(fileName.matches("^sa.*")){
             config = new SimulatedAnnealingConfiguration(fileName);
             simulationManager = new SimulatedAnnealing((SimulatedAnnealingConfiguration)config);
-            configurationType = "pso";
+            configurationType = "sa";
         }
         else{
             throw new RuntimeException("Invalid configuration file name supplied.");
@@ -110,8 +110,10 @@ public class Application {
 
         for(int i = 0; i < Configuration.MAX_ITERATIONS; i++){
             Knapsack fittestKnapsack = simulationManager.execute();
+            if(fittestKnapsack == null)
+                break;
             report.addIteration(fittestKnapsack);
-            if(i % 100 == 0)
+            if(i % 10 == 0)
                 System.out.println(simulationManager.getSummaryStats());
         }
 

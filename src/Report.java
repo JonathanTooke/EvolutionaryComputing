@@ -85,12 +85,18 @@ public class Report implements Comparable<Report>{
         reportBody.append(this.completeTime + "ms\n\n");
         reportBody.append("Covergence" + " ".repeat(5) + "#" + " ".repeat(5) + "bWeight" + " ".repeat(5) + "bValue" + " ".repeat(5) + "sQuality" + "\n");
 
-        for(int i = 0; i < 4; i++){
-            int quartile = bestKnapsacksByIteration.size()/(4 - i);
-            reportBody.append(" ".repeat(14));
-            reportBody.append(String.format("%0$-10s", quartile));
-            reportBody.append(bestKnapsacksByIteration.get(quartile - 1).toReportString(false) + "\n");
+        if(bestKnapsacksByIteration.size() > 4){
+            for(int i = 0; i < 4; i++){
+                int quartile = bestKnapsacksByIteration.size()/(4 - i);
+                reportBody.append(" ".repeat(14));
+                reportBody.append(String.format("%0$-10s", quartile));
+                reportBody.append(bestKnapsacksByIteration.get(quartile - 1).toReportString(false) + "\n");
+            }
         }
+        else{
+            reportBody.append("Too few iterations for quartile data.\n");
+        }
+        
 
         reportBody.append("Plateau | Longest sequence " + getLongestPlateau() + "\n\n");
         reportBody.append("=".repeat(100) + "\n");

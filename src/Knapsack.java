@@ -164,8 +164,4 @@ public class Knapsack implements Comparable<Knapsack>{
     public int getFitness(){
         return this.fitness;
     }
-
-    public void setRandomlyGeneratedItems(){
-        this.knapsackSelection = generateRandomItems();
-    }
 }
