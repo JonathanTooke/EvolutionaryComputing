@@ -31,8 +31,8 @@ public class SwarmConfiguration extends Configuration {
      * String representation of configuration for report.
      */
     public String toString(){
-        return "PSO" + " | #" + Configuration.MAX_ITERATIONS + " | " + "num_particles: " + " | " 
-        + this.numParticles + " | " + "Min_V: " + this.minimumVelocity + " | " + "Max_V: " + this.maximumVelocity + " | "
+        return "PSO" + " | #" + Configuration.MAX_ITERATIONS + " | " + "num_particles: " + this.numParticles 
+        + " | " + "Min_V: " + this.minimumVelocity + " | " + "Max_V: " + this.maximumVelocity + " | "
         + "w: " + this.inertia + " | " + "c1: " + this.c1 + " | " + "c2: " + this.c2;
     }
 

@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Class used to represent and evolve a population of Chromosomes for a given GA Configuration.
  */
-public class Population {
+public class Population extends SimulationManager{
     private PopulationConfiguration config;
     private List<Chromosome> population;
 
@@ -36,7 +36,7 @@ public class Population {
      * Main event loop for the population. 
      * Handles the process of evolving one population to the next.
      */
-    public Knapsack evolve() {
+    public Knapsack execute() {
         //1. Extract The Elite 
         List<Chromosome> elite = extractElite(this.population, PopulationConfiguration.ELITISM_RATIO);
 

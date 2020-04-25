@@ -6,7 +6,7 @@ import java.util.IntSummaryStatistics;
  * Class used to represent and evolve a population of Particles for a given PSO
  * Configuration.
  */
-public class Swarm {
+public class Swarm extends SimulationManager{
     private ArrayList<Boolean> globalBestPosition;
     private ArrayList<Particle> swarm;
     private int globalBestValue;
