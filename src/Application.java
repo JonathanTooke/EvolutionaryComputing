@@ -113,7 +113,7 @@ public class Application {
             if(fittestKnapsack == null)
                 break;
             report.addIteration(fittestKnapsack);
-            if(i % 10 == 0)
+            if(i % 100 == 0)
                 System.out.println(simulationManager.getSummaryStats());
         }
 

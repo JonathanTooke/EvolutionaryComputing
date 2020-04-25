@@ -10,6 +10,10 @@ Implementation of Gentic (GA), Particle Swarm Optimization (PSO), and Simulated 
     * -configuration [filename] (for a specific configuration)
 4. Alteratively, the arguments attached to "make run" in the Makefile can be changed and the code can be run with the "make run" command directly.
 
+## Custom Configurations
+
+A custom configuration ahs been created for PSO and for SA to demonstrate the capabilities of the algorithm given different constraints. In the case of PSO it was by increasing the swarm size, and the case of SA it was decreasing the cooling rate. These configurations provide better solutions than the default ones, but are not considered in the search_best_configuration argument.
+
 ## Inheritance Hierarchy Explained
 * SimulationManager is the parent to Population (GA), SimulatedAnnealing (SA), Swarm (PSO). These classes manage the simulation for their respective algorithms and are invoked from the Application.
 * Knapsack is the parent to Chromosome (GA), SACandidate (SA), Particle (PSO). These classes manage the individual solutions in the set of solutions for a given algorithm.
