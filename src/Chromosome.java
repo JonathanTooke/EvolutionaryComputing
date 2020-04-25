@@ -191,8 +191,13 @@ public class Chromosome extends Knapsack{
             boolean value = newSelection.get(allele2);
 
             newSelection.remove(allele2);
-            newSelection.add(allele1 + 1, value);
-
+            try{
+                newSelection.add(allele1 + 1, value);
+            }
+            catch(IndexOutOfBoundsException e){
+                newSelection.add(value);
+            }
+            
             Chromosome mutatedKnapsack = new Chromosome(newSelection).withFitnessCalculated();
             if(mutatedKnapsack.isValid())
                 return mutatedKnapsack;

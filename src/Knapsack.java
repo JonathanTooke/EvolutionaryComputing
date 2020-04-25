@@ -114,8 +114,9 @@ public class Knapsack implements Comparable<Knapsack>{
 
     /**
      * Compare by fitness value where larger fitness > smaller fitness.
+     * Sorted from largest to smallest fitness.
      * @param other - knapsack to compare with.
-     * @return 0 if equal fitness, 1 if this fitness > other fitness, -1 if other fitness > this fitness
+     * @return 0 if equal fitness, -1 if this fitness > other fitness, 1 if other fitness > this fitness
      */
     @Override
     public int compareTo(Knapsack other){

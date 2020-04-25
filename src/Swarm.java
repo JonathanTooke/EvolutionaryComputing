@@ -20,11 +20,15 @@ public class Swarm extends SimulationManager{
     public Swarm(SwarmConfiguration config) {
         this.config = config;
         this.swarm = initializeSwarm();
-        Collections.sort(swarm);
+        Collections.sort(this.swarm);
         this.globalBestPosition = Knapsack.copyBoolArrayList(swarm.get(0).getKnapsackSelection());
     }
 
-    public Knapsack execute(){
+    /**
+     * Execute an iteration of the PSO algorithm
+     * @return Particle - the optimal particle.
+     */
+    public Particle execute(){
         //1. Find new global best
         if(swarm.get(0).getFitness() > globalBestValue){
             this.globalBestPosition = Knapsack.copyBoolArrayList(swarm.get(0).getKnapsackSelection());
@@ -48,7 +52,7 @@ public class Swarm extends SimulationManager{
 
     /**
      * Intiialize the particle swarm.
-     * @return
+     * @return ArrayList<Particle> - the intial random swarm.
      */
     private ArrayList<Particle> initializeSwarm(){
         ArrayList<Particle> initialSwarm = new ArrayList<>();
@@ -58,6 +62,9 @@ public class Swarm extends SimulationManager{
         return initialSwarm;
     }
 
+    /**
+     * Update the fitness value associated with each particle.
+     */
     private void updateSwarmFitness(){
         for(var particle : swarm){
             particle.updateFitness();

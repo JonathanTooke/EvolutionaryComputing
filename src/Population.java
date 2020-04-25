@@ -163,7 +163,8 @@ public class Population extends SimulationManager{
      */
     private List<Chromosome> tournamentSelect(List<Chromosome> population){
         List<Chromosome> newPopulation = new ArrayList<>();
-        Collections.sort(population);
+        //Get smallest to largest fitness
+        Collections.sort(population, Collections.reverseOrder());
 
         for(int i = 0; i < population.size(); i++){
             int bestCandidate = 0;

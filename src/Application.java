@@ -98,8 +98,8 @@ public class Application {
     }
 
     /**
-     * Runs a specific configuration and generated the report.
-     * @param fileName - the configuration to be run.
+     * Runs a specific configuration and generates the report.
+     * @param fileName - the filename of the configuration to be run.
      * @param config - the configuration to be run.
      * @param simulationManager - the simulation manager.
      * @return report - generated report.

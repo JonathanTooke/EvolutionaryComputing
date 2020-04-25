@@ -29,7 +29,7 @@ public class Report implements Comparable<Report>{
 
     /**
      * Add new knapsack and update best fitness value.
-     * Note best fitness won't necessarily be the newest knapsack if elitism ratio is 0.
+     * Note best fitness won't necessarily be the newest knapsack if elitism ratio is 0 (for GA).
      * @param bestKnapsack - for the current iteration.
      */
     public void addIteration(Knapsack bestKnapsack){
@@ -86,11 +86,11 @@ public class Report implements Comparable<Report>{
         reportBody.append("Covergence" + " ".repeat(5) + "#" + " ".repeat(5) + "bWeight" + " ".repeat(5) + "bValue" + " ".repeat(5) + "sQuality" + "\n");
 
         if(bestKnapsacksByIteration.size() > 4){
-            for(int i = 0; i < 4; i++){
-                int quartile = bestKnapsacksByIteration.size()/(4 - i);
+            for(int i = 1; i < 5; i++){
+                int quartile = (int)Math.round(bestKnapsacksByIteration.size()*((double)i/4));
                 reportBody.append(" ".repeat(14));
                 reportBody.append(String.format("%0$-10s", quartile));
-                reportBody.append(bestKnapsacksByIteration.get(quartile - 1).toReportString(false) + "\n");
+                reportBody.append(bestKnapsacksByIteration.get(Math.max((quartile - 1),0)).toReportString(false) + "\n");
             }
         }
         else{
