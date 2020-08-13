@@ -57,7 +57,7 @@ public class Swarm extends SimulationManager{
     private ArrayList<Particle> initializeSwarm(){
         ArrayList<Particle> initialSwarm = new ArrayList<>();
         for (int i = 0; i < config.getNumParticles(); i++){
-            initialSwarm.add(new Particle().withRandomPositions().withFitnessCalculated().withVelocitiesInitialized());
+            initialSwarm.add(new Particle().withRandomPositions().withFitnessCalculated().withVelocitiesInitialized(this.config));
         }
         return initialSwarm;
     }

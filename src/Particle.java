@@ -50,10 +50,11 @@ public class Particle extends Knapsack {
      * For chaining with constructor to include preset velocities at 0 
      * @return this
      */
-    public Particle withVelocitiesInitialized(){
+    public Particle withVelocitiesInitialized(SwarmConfiguration config){
         this.velocities = new ArrayList<>();
         for(int i = 0; i < Configuration.NUM_ITEMS; i++){
-            this.velocities.add(0.0);
+            double rand = Configuration.RANDOM_GENERATOR.nextDouble(config.getMinimumVelocity()/2, config.getMaximumVelocity()/2);
+            this.velocities.add(rand);
         }
         return this;
     }
@@ -101,8 +102,8 @@ public class Particle extends Knapsack {
     }
 
     public void updatePosition(){
-        double rand = Configuration.RANDOM_GENERATOR.nextDouble();
         for(int i =0; i < this.velocities.size(); i++){
+            double rand = Configuration.RANDOM_GENERATOR.nextDouble();
             if(rand < sigmoid(this.velocities.get(i))){
                 this.knapsackSelection.set(i, true);
             }

@@ -1,1 +1,1 @@
-{"minimum_velocity":"2","maximum_velocity":"2","inertia":"0.9","configuration":"pso_custom_01","number_particles":"500","c1":"0.5","c2":"0.3"}
+{"minimum_velocity":"20","maximum_velocity":"20","inertia":"0.99","configuration":"pso_custom_01","number_particles":"1000","c1":"0.5","c2":"0.5"}
